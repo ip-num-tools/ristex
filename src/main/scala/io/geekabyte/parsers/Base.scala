@@ -26,7 +26,7 @@ object Base {
     val dateParser: Parser[String] = {
       int.flatMap((date: Int) => {
         range(date, 1, 31, s"Date $date cannot be less than 1 or greater than 31")
-      })map((date: Int) => padWithZero(date.toString))
+      }).map((date: Int) => padWithZero(date.toString))
     }
 
     (yearParser, monthParser, dateParser).mapN(_ ++ _ ++ _).map(_.mkString(""))
@@ -64,12 +64,11 @@ object Base {
 
 
   val startDateParser: Parser[String] = yearMonthDateParser
+  val endDateParser: Parser[String] = yearMonthDateParser
+  val recordDate: Parser[String] = yearMonthDateParser
 
 
   val summaryParser: Parser[String] = anyStringOrDigit
-
-
-  val endDateParser: Parser[String] = yearMonthDateParser
 
 
   val UTCoffsetParser: Parser[String] = {
@@ -78,5 +77,85 @@ object Base {
     val value: Parser[(Char, List[Char])] = prefix ~ hours
     value.map { case (a, b) => (a +: b).mkString("") }
   }
+
+  val countryCodeParse: Parser[String] = {
+    manyN(2, letter).map(_.mkString)
+  }
+
+  val asnParser: Parser[String] = {
+    long.filter(asn => {
+      asn >= 0 && asn <= "4294967296".toLong
+    }).map(_.toString())
+  }
+
+  val ipv4Parser: Parser[String] = {
+
+    val octetParser: Parser[Int] =
+      int
+        .filter(n => n >= 0 && n <= 255)
+
+    val dotParser: Parser[Char] = char('.')
+
+    (octetParser <~ dotParser,
+      octetParser <~ dotParser,
+      octetParser <~ dotParser, octetParser).mapN((a, b, c, d) => s"$a.$b.$c.$d")
+  }
+
+  val ipv6Parser: Parser[String] = {
+    val hexParser: Parser[String] = {
+      manyN(4, hexDigit).map(_.mkString) |
+      manyN(3, hexDigit).map(_.mkString) |
+      manyN(2, hexDigit).map(_.mkString) |
+      manyN(1, hexDigit).map(_.mkString)
+    }
+    val colonParser: Parser[String] = string(":")
+    val doubleColonParser: Parser[String] = string("::")
+
+    def recursive: Parser[String] = {
+      for {
+        first <- doubleColonParser | hexParser | colonParser
+        rest <- {
+          if (":".equals(first) || "::".equals(first)) {
+            hexParser
+          } else {
+            recursive
+          }
+        }
+      } yield first + rest
+    }
+
+    (many(recursive).map(_.mkString), many(string("::")).map(_.mkString)).mapN((a,b) => a + b)
+  }
+
+  val valueParser: Parser[Long] = {
+    long.filter(value => {
+      value >= 0 && value <= Math.pow(2, 32).toLong
+    })
+  }
+
+  val statusParser: Parser[String] = {
+    string("available")   |
+    string("allocated")   |
+    string("assigned")    |
+    string("reserved")
+  }
+
+  val standardStatusParser: Parser[String] = {
+    string("allocated") | string("assigned")
+  }
+
+  val extendedStatusParser: Parser[String] = statusParser
+
+
+  val ipTypeAndStartValueParser: Parser[(String, String)] = for {
+    ipType <- ipTypeParser <~ char('|')
+    startValue <- if ("asn".equalsIgnoreCase(ipType)) {
+      asnParser
+    } else if ("ipv4".equalsIgnoreCase(ipType)) {
+      ipv4Parser
+    } else {
+      ipv6Parser
+    }
+  } yield (ipType, startValue)
 
 }

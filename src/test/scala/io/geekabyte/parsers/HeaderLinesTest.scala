@@ -2,13 +2,12 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto._
-import io.geekabyte.parsers.FileHeader.{SummaryLine, VersionLine}
-import org.scalatest.{FunSpec, FunSuite, OptionValues}
-import shapeless.PolyDefns.~>
+import io.geekabyte.parsers.HeaderLines.VersionLine
+import org.scalatest.{FunSpec, OptionValues}
 
 import scala.io.Source
 
-class FileHeaderTest extends  FunSpec with OptionValues {
+class HeaderLinesTest extends  FunSpec with OptionValues {
 
   private val records: String =
     Source
@@ -21,7 +20,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should initParse") {
         val parseResult: ParseResult[(Int, String, Int, Int, String, String, String)] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .initParse
             .parseOnly(records)
@@ -31,7 +30,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse version") {
         val parseResult: ParseResult[Int] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .version
             .parseOnly(records)
@@ -41,7 +40,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse registry") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .registry
             .parseOnly(records)
@@ -51,7 +50,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse serial") {
         val parseResult: ParseResult[Int] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .serial
             .parseOnly(records)
@@ -61,7 +60,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse records") {
         val parseResult: ParseResult[Int] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .records
             .parseOnly(records)
@@ -71,7 +70,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse start date") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .startDate
             .parseOnly(records)
@@ -81,7 +80,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse end date") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .endDate
             .parseOnly(records)
@@ -91,7 +90,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse utc") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .VersionLine
             .UTCoffset
             .parseOnly(records)
@@ -101,11 +100,28 @@ class FileHeaderTest extends  FunSpec with OptionValues {
     }
     describe("SummaryLine") {
 
-      it("should initParse") {
+      it("should initParse all summary lines") {
         val parseResult: ParseResult[List[(String, String, Int, String)]] =
-          FileHeader
+          HeaderLines
             .SummaryLine
-            .initParse
+            .initAll
+            .parseOnly(records)
+
+        assert(parseResult.option.value == List(
+          ("ripencc","ipv4",71111,"summary1"),
+          ("ripencc","asn",33984,"summary2"),
+          ("ripencc","ipv6",18302,"summary3"))
+        )
+      }
+
+      it("should parse all summary lines") {
+        val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+          VersionLine.initParse ~ char('\n')
+
+        val parseResult: ParseResult[List[(String, String, Int, String)]] =
+          (headerVersionLine ~> HeaderLines
+            .SummaryLine
+            .all)
             .parseOnly(records)
 
         assert(parseResult.option.value == List(
@@ -119,7 +135,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
         val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
-        val summaryLineParser: Parser[(String, String, Int, String)] = FileHeader
+        val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
           .next
 
@@ -135,7 +151,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
         val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
-        val summaryLineParser: Parser[(String, String, Int, String)] = FileHeader
+        val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
           .next
 
@@ -150,7 +166,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
         val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
-        val summaryLineParser: Parser[(String, String, Int, String)] = FileHeader
+        val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
           .next
 
@@ -163,7 +179,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse registry in first summary line") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .SummaryLine
             .initRegistry
             .parseOnly(records)
@@ -172,10 +188,10 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse registry in second summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
             .initRegistry ~ Util.eof) ~>
-            FileHeader.SummaryLine.nextRegistry // second line
+            HeaderLines.SummaryLine.nextRegistry // second line
             )
             .parseOnly(records)
         assert(parseResult.option.value == "ripencc")
@@ -183,10 +199,10 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse registry in third summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initRegistry ~ Util.eof ~ FileHeader.SummaryLine.nextRegistry ~ Util.eof) ~>
-            FileHeader.SummaryLine.nextRegistry // third line
+            .initRegistry ~ Util.eof ~ HeaderLines.SummaryLine.nextRegistry ~ Util.eof) ~>
+            HeaderLines.SummaryLine.nextRegistry // third line
             )
             .parseOnly(records)
         assert(parseResult.option.value == "ripencc")
@@ -194,7 +210,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse type in first summary line") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .SummaryLine
             .initType
             .parseOnly(records)
@@ -204,9 +220,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse type in second summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initType ~ Util.eof) ~> FileHeader.SummaryLine.nextType)
+            .initType ~ Util.eof) ~> HeaderLines.SummaryLine.nextType)
             .parseOnly(records)
         
         assert(parseResult.option.value == "asn")
@@ -214,9 +230,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse type in third summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initType ~ Util.eof ~ FileHeader.SummaryLine.nextType ~ Util.eof) ~> FileHeader.SummaryLine.nextType)
+            .initType ~ Util.eof ~ HeaderLines.SummaryLine.nextType ~ Util.eof) ~> HeaderLines.SummaryLine.nextType)
             .parseOnly(records)
         
         assert(parseResult.option.value == "ipv6")
@@ -224,7 +240,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse count in first summary line") {
         val parseResult: ParseResult[Int] =
-          FileHeader
+          HeaderLines
             .SummaryLine
             .initCount
             .parseOnly(records)
@@ -234,9 +250,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse count in second summary line") {
         val parseResult: ParseResult[Int] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initCount ~ Util.eof) ~> FileHeader.SummaryLine.nextCount)
+            .initCount ~ Util.eof) ~> HeaderLines.SummaryLine.nextCount)
             .parseOnly(records)
         
         assert(parseResult.option.value == 33984)
@@ -244,9 +260,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse count in third summary line") {
         val parseResult: ParseResult[Int] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initCount ~ Util.eof ~ FileHeader.SummaryLine.nextCount ~ Util.eof) ~> FileHeader.SummaryLine.nextCount)
+            .initCount ~ Util.eof ~ HeaderLines.SummaryLine.nextCount ~ Util.eof) ~> HeaderLines.SummaryLine.nextCount)
             .parseOnly(records)
 
         assert(parseResult.option.value == 18302)
@@ -254,7 +270,7 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse summary in first summary line") {
         val parseResult: ParseResult[String] =
-          FileHeader
+          HeaderLines
             .SummaryLine
             .initSummary
             .parseOnly(records)
@@ -264,9 +280,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse summary in second summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initSummary ~ Util.eof) ~> FileHeader.SummaryLine.nextSummary)
+            .initSummary ~ Util.eof) ~> HeaderLines.SummaryLine.nextSummary)
             .parseOnly(records)
 
         assert(parseResult.option.value == "summary2")
@@ -274,9 +290,9 @@ class FileHeaderTest extends  FunSpec with OptionValues {
 
       it("should parse summary in third summary line") {
         val parseResult: ParseResult[String] =
-          ((FileHeader
+          ((HeaderLines
             .SummaryLine
-            .initSummary ~ Util.eof ~ FileHeader.SummaryLine.nextSummary ~ Util.eof) ~> FileHeader.SummaryLine.nextSummary)
+            .initSummary ~ Util.eof ~ HeaderLines.SummaryLine.nextSummary ~ Util.eof) ~> HeaderLines.SummaryLine.nextSummary)
             .parseOnly(records)
 
         assert(parseResult.option.value == "summary3")

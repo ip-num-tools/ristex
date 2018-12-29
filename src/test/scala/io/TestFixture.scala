@@ -1,5 +1,0 @@
-package io
-
-object TestFixture {
-
-}

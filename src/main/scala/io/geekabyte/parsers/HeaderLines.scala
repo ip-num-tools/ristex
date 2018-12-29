@@ -13,7 +13,7 @@ import Util.{eof, pipe, summaryPipe}
   * the summary line
   *
   */
-object FileHeader {
+object HeaderLines {
 
   /**
     * Format:
@@ -144,7 +144,7 @@ object FileHeader {
     private val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
       VersionLine.initParse ~ char('\n')
 
-    val initParse: Parser[List[(String, String, Int, String)]] = {
+    val initAll: Parser[List[(String, String, Int, String)]] = {
       val parser: Parser[(String, String, Int, String)] = (
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
@@ -153,6 +153,17 @@ object FileHeader {
       ).mapN(Tuple4.apply)
 
       headerVersionLine ~> sepBy(parser, char('\n'))
+    }
+
+    val all: Parser[List[(String, String, Int, String)]] = {
+      val parser: Parser[(String, String, Int, String)] = (
+        registryParser <~ summaryPipe,
+        ipTypeParser <~ summaryPipe,
+        recordCountParser <~ pipe,
+        summaryParser <~ manyN(0, eof)
+      ).mapN(Tuple4.apply)
+
+      sepBy(parser, char('\n'))
     }
 
     val next: Parser[(String, String, Int, String)] = {

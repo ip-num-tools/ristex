@@ -3,8 +3,8 @@ ripencc|*|ipv4|*|71111|summary1
 ripencc|*|asn|*|33984|summary2
 ripencc|*|ipv6|*|18302|summary3
 ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
-ripencc|EU|ipv4|2.16.0.0|524288|20100910|allocated
-ripencc|GB|ipv4|2.24.0.0|524288|20100921|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|assigned
+ripencc|GB|asn|210331|1|20180821|allocated
 ripencc|IT|ipv4|2.32.0.0|1048576|20100429|allocated
 ripencc|AE|ipv4|2.48.0.0|262144|20100528|allocated
 ripencc|IL|ipv4|2.52.0.0|262144|20100809|allocated
