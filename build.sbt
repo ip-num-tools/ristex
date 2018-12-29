@@ -1,10 +1,10 @@
 lazy val root = (project in file(".")).settings(
   inThisBuild(List(
-    organization := "com.example",
+    organization := "io.geekabyte",
     scalaVersion := "2.12.7",
     version      := "0.1.0-SNAPSHOT"
   )),
-  name := "parser",
+  name := "ristex",
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.4" % Test,
     "org.tpolecat" %% "atto-core"    % "0.6.4",
