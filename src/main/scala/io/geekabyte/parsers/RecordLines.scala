@@ -8,6 +8,54 @@ import Util.pipe
 
 object RecordLines {
 
+  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] = SummaryLine.initAll ~ Util.eof
+
+  private def regParser(statusParser: Parser[String]): Parser[String] = registryParser <~ {
+    pipe ~ countryCodeParse ~
+      pipe ~ { ipTypeAndStartValueParser } ~
+      pipe ~ valueParser ~
+      pipe ~ recordDate ~
+      pipe ~ statusParser
+  }
+
+  private def ccParser(statusParser: Parser[String]): Parser[String] = {
+    val cc: Parser[String] = (registryParser ~ pipe) ~> countryCodeParse
+    cc <~ pipe ~ { ipTypeAndStartValueParser } ~
+      pipe ~ valueParser ~
+      pipe ~ recordDate ~
+      pipe ~ statusParser
+  }
+
+  private def typeParser(statusParser: Parser[String]): Parser[String] = {
+    val ipType: Parser[(String, String)] = (registryParser ~ pipe ~ countryCodeParse ~ pipe) ~> ipTypeAndStartValueParser
+    (ipType <~ pipe ~ valueParser ~
+      pipe ~ recordDate ~
+      pipe ~ statusParser).map(_._1)
+  }
+
+  private def startParser(statusParser: Parser[String]): Parser[String] = {
+    val ipType: Parser[(String, String)] = (registryParser ~ pipe ~ countryCodeParse ~ pipe) ~> ipTypeAndStartValueParser
+    (ipType <~ pipe ~ valueParser ~
+      pipe ~ recordDate ~
+      pipe ~ statusParser).map(_._2)
+  }
+
+  private def startValueParser(statusParser: Parser[String]): Parser[Long] = {
+    val value: Parser[Long] = registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~> valueParser
+    value <~ pipe ~ recordDate ~
+      pipe ~ statusParser
+  }
+
+  private def dateParser(statusParser: Parser[String]): Parser[String] = {
+    val date: Parser[String] = registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~ valueParser ~ pipe ~> recordDate
+    date <~ pipe ~ statusParser
+  }
+
+  private def statusParser(statusParser: Parser[String]): Parser[String] = {
+    registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~
+      valueParser ~ pipe ~> recordDate ~ pipe ~> statusParser
+  }
+
   /**
     * Format:
     *
@@ -75,8 +123,6 @@ object RecordLines {
     */
   object Standard {
 
-    private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] = SummaryLine.initAll ~ Util.eof
-
     val initRegistry: Parser[String] = {
       parseUpUntilRecords ~>  {
         nextRegistry
@@ -84,13 +130,7 @@ object RecordLines {
     }
 
     val nextRegistry = {
-      registryParser <~ {
-        pipe ~ countryCodeParse ~
-          pipe ~ { ipTypeAndStartValueParser } ~
-          pipe ~ valueParser ~
-          pipe ~ recordDate ~
-          pipe ~ standardStatusParser
-      }
+      regParser(standardStatusParser)
     }
 
     val initCountryCode: Parser[String] = {
@@ -100,11 +140,7 @@ object RecordLines {
     }
 
     val nextCountryCode: Parser[String] = {
-      val cc: Parser[String] = (registryParser ~ pipe) ~> countryCodeParse
-      cc <~ pipe ~ { ipTypeAndStartValueParser } ~
-        pipe ~ valueParser ~
-        pipe ~ recordDate ~
-        pipe ~ standardStatusParser
+      ccParser(standardStatusParser)
     }
 
     val initType: Parser[String] = {
@@ -114,10 +150,7 @@ object RecordLines {
     }
 
     val nextType = {
-      val ipType: Parser[(String, String)] = (registryParser ~ pipe ~ countryCodeParse ~ pipe) ~> ipTypeAndStartValueParser
-      (ipType <~ pipe ~ valueParser ~
-        pipe ~ recordDate ~
-        pipe ~ standardStatusParser).map(_._1)
+      typeParser(standardStatusParser)
     }
 
     val initStart: Parser[String] = {
@@ -127,10 +160,7 @@ object RecordLines {
     }
 
     val nextStart: Parser[String] = {
-      val ipType: Parser[(String, String)] = (registryParser ~ pipe ~ countryCodeParse ~ pipe) ~> ipTypeAndStartValueParser
-      (ipType <~ pipe ~ valueParser ~
-        pipe ~ recordDate ~
-        pipe ~ standardStatusParser).map(_._2)
+      startParser(standardStatusParser)
     }
 
 
@@ -141,11 +171,8 @@ object RecordLines {
     }
 
     val nextValue: Parser[Long] = {
-      val value: Parser[Long] = registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~> valueParser
-      value <~ pipe ~ recordDate ~
-        pipe ~ standardStatusParser
+      startValueParser(standardStatusParser)
     }
-
 
     val initDate: Parser[String] = {
       parseUpUntilRecords ~> {
@@ -154,8 +181,7 @@ object RecordLines {
     }
 
     val nextDate: Parser[String] = {
-      val date: Parser[String] = registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~ valueParser ~ pipe ~> recordDate
-      date <~ pipe ~ standardStatusParser
+      dateParser(standardStatusParser)
     }
 
     val initStatus: Parser[String] = {
@@ -165,14 +191,136 @@ object RecordLines {
     }
 
     val nextStatus: Parser[String] = {
-      registryParser ~ pipe ~ countryCodeParse ~ pipe ~ ipTypeAndStartValueParser ~ pipe ~
-        valueParser ~ pipe ~> recordDate ~ pipe ~> standardStatusParser
+      statusParser(standardStatusParser)
     }
 
   }
 
+  /**
+    * Format:
+    *
+    * registry|cc|type|start|value|date|status|opaque-id[|extensions...]
+    *
+    * Almost same as standard. Difference includes:
+    *
+    * status     Type of record from the set:
+    *
+    * {available, allocated, assigned, reserved}
+    *
+    * available    The resource has not been allocated
+    * or assigned to any entity.
+    *
+    * allocated    An allocation made by the registry
+    * producing the file.
+    *
+    * assigned     An assignment made by the registry
+    * producing the file.
+    *
+    * reserved     The resource has not been allocated
+    * or assigned to any entity, and is
+    * not available for allocation or
+    * assignment.
+    *
+    * opaque-id  This is an in-series identifier which uniquely
+    * identifies a single organisation, an Internet
+    * number resource holder.
+    *
+    * All records in the file with the same opaque-id
+    * are registered to the same resource holder.
+    *
+    * The opaque-id is not guaranteed to be constant
+    * between versions of the file.
+    *
+    * If the records are collated by type, opaque-id and
+    * date, records of the same type for the same opaque-id
+    * for the same date can be held to be a single
+    * assignment or allocation
+    *
+    * extensions In future, this may include extra data that
+    * is yet to be defined.
+    *
+    */
   object Extended {
+    val initRegistry: Parser[String] = {
+      parseUpUntilRecords ~>  {
+        nextRegistry
+      }
+    }
 
+    val nextRegistry = {
+      regParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initCountryCode: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextCountryCode
+      }
+    }
+
+    val nextCountryCode: Parser[String] = {
+      ccParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initType: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextType
+      }
+    }
+
+    val nextType = {
+      typeParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initStart: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextStart
+      }
+    }
+
+    val nextStart: Parser[String] = {
+      startParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+
+    val initValue: Parser[Long] = {
+      parseUpUntilRecords ~> {
+        nextValue
+      }
+    }
+
+    val nextValue: Parser[Long] = {
+      startValueParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initDate: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextDate
+      }
+    }
+
+    val nextDate: Parser[String] = {
+      dateParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initStatus: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextStatus
+      }
+    }
+
+    val nextStatus: Parser[String] = {
+      statusParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    }
+
+    val initOpaqueId: Parser[String] = {
+      parseUpUntilRecords ~> {
+        nextOpaqueId
+      }
+    }
+
+    val nextOpaqueId: Parser[String] = {
+      statusParser(extendedStatusParser)
+    }
   }
 
 }

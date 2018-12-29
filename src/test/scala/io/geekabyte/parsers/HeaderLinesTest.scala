@@ -11,7 +11,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
   private val records: String =
     Source
-      .fromResource("records_short")
+      .fromResource("sample_standard_records")
       .getLines()
       .toList.mkString("\n")
 

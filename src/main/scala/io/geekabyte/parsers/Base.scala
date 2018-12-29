@@ -146,7 +146,6 @@ object Base {
 
   val extendedStatusParser: Parser[String] = statusParser
 
-
   val ipTypeAndStartValueParser: Parser[(String, String)] = for {
     ipType <- ipTypeParser <~ char('|')
     startValue <- if ("asn".equalsIgnoreCase(ipType)) {
@@ -157,5 +156,9 @@ object Base {
       ipv6Parser
     }
   } yield (ipType, startValue)
+
+  val opaqueIdParser: Parser[String] = {
+    many(char('-') | letterOrDigit).map(_.mkString)
+  }
 
 }
