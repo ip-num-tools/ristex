@@ -11,7 +11,7 @@ object Util {
 
   val summaryPipe: Parser[String] = (pipe, char('*'), pipe).mapN((p1: Char, c: Char, p2: Char) => s"$p1$c$p2")
 
-  val eof: Parser[Char] = char('\n')
+  val eol: Parser[Char] = char('\n')
 
   def range(value: Int, lower: Int, upper: Int, errMsg: String): Parser[Int] = {
     if (value < lower || value > upper) {

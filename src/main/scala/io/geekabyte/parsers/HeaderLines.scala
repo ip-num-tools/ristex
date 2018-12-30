@@ -4,7 +4,7 @@ import atto.Atto._
 import atto._
 import cats.implicits._
 import Base.{UTCoffsetParser, endDateParser, ipTypeParser, recordCountParser, registryParser, serialNumberParser, startDateParser, summaryParser, versionParser}
-import Util.{eof, pipe, summaryPipe}
+import Util.{eol, pipe, summaryPipe}
 
 /**
   * The file header consists of
@@ -40,7 +40,7 @@ object HeaderLines {
         recordCountParser <~ pipe,
         startDateParser <~ pipe,
         endDateParser <~ pipe,
-        UTCoffsetParser <~ manyN(0, eof)).mapN(Tuple7.apply)
+        UTCoffsetParser <~ manyN(0, eol)).mapN(Tuple7.apply)
     }
 
     val version: Parser[Double] = {
@@ -51,7 +51,7 @@ object HeaderLines {
             pipe ~ recordCountParser ~
             pipe ~ startDateParser ~
             pipe ~ endDateParser ~
-            pipe ~ UTCoffsetParser ~ manyN(0, eof)
+            pipe ~ UTCoffsetParser ~ manyN(0, eol)
         }
 
       } yield version
@@ -64,7 +64,7 @@ object HeaderLines {
           pipe ~ recordCountParser ~
           pipe ~ startDateParser ~
           pipe ~ endDateParser ~
-          pipe ~ UTCoffsetParser ~ manyN(0, eof)
+          pipe ~ UTCoffsetParser ~ manyN(0, eol)
       }
     }
 
@@ -74,7 +74,7 @@ object HeaderLines {
           pipe ~ recordCountParser ~
           pipe ~ startDateParser ~
           pipe ~ endDateParser ~
-          pipe ~ UTCoffsetParser ~ manyN(0, eof)
+          pipe ~ UTCoffsetParser ~ manyN(0, eol)
       }
     }
 
@@ -86,7 +86,7 @@ object HeaderLines {
       record <~ {
           pipe ~ startDateParser ~
           pipe ~ endDateParser ~
-          pipe ~ UTCoffsetParser ~ manyN(0, eof)
+          pipe ~ UTCoffsetParser ~ manyN(0, eol)
       }
     }
 
@@ -97,7 +97,7 @@ object HeaderLines {
 
       startdate <~ {
           pipe ~ endDateParser ~
-          pipe ~ UTCoffsetParser ~ manyN(0, eof)
+          pipe ~ UTCoffsetParser ~ manyN(0, eol)
       }
     }
 
@@ -108,7 +108,7 @@ object HeaderLines {
       } ~> endDateParser
 
       enddate <~ {
-        pipe ~ UTCoffsetParser ~ manyN(0, eof)
+        pipe ~ UTCoffsetParser ~ manyN(0, eol)
       }
     }
 
@@ -119,7 +119,7 @@ object HeaderLines {
       } ~> UTCoffsetParser
 
       enddate <~ {
-        manyN(0, eof)
+        manyN(0, eol)
       }
     }
 
@@ -149,7 +149,7 @@ object HeaderLines {
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, eof)
+        summaryParser <~ manyN(0, eol)
       ).mapN(Tuple4.apply)
 
       headerVersionLine ~> sepBy(parser, char('\n'))
@@ -160,7 +160,7 @@ object HeaderLines {
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, eof)
+        summaryParser <~ manyN(0, eol)
       ).mapN(Tuple4.apply)
 
       sepBy(parser, char('\n'))
@@ -170,7 +170,7 @@ object HeaderLines {
       (registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, eof)).mapN(Tuple4.apply)
+        summaryParser <~ manyN(0, eol)).mapN(Tuple4.apply)
     }
 
     val initRegistry: Parser[String] = {
@@ -183,7 +183,7 @@ object HeaderLines {
       registryParser <~ {
         summaryPipe ~ ipTypeParser ~
           summaryPipe ~ recordCountParser ~
-          pipe ~ summaryParser ~ manyN(0, eof)
+          pipe ~ summaryParser ~ manyN(0, eol)
       }
     }
 
@@ -195,7 +195,7 @@ object HeaderLines {
 
     val nextType = {
       val ipType: Parser[String] = (registryParser ~ summaryPipe) ~> ipTypeParser
-      ipType <~ summaryPipe ~ recordCountParser ~ pipe ~ summaryParser ~ manyN(0, eof)
+      ipType <~ summaryPipe ~ recordCountParser ~ pipe ~ summaryParser ~ manyN(0, eol)
     }
 
     val initCount: Parser[Int] = {
@@ -206,7 +206,7 @@ object HeaderLines {
 
     val nextCount = {
       val recordCount: Parser[Int] = (registryParser ~ summaryPipe ~ ipTypeParser ~ summaryPipe) ~> recordCountParser
-      recordCount <~ pipe ~ summaryParser ~ manyN(0, eof)
+      recordCount <~ pipe ~ summaryParser ~ manyN(0, eol)
     }
 
     val initSummary: Parser[String] = {
@@ -218,7 +218,7 @@ object HeaderLines {
     val nextSummary: Parser[String] = {
       val summary: Parser[String] =
         (registryParser ~ summaryPipe ~ ipTypeParser ~ summaryPipe ~ recordCountParser ~ pipe) ~> summaryParser
-      summary <~ manyN(0, eof)
+      summary <~ manyN(0, eol)
     }
 
   }

@@ -38,7 +38,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .nextRegistry
 
-        assert((initRegistryParser ~ Util.eof ~> nextRegistryParser).parseOnly(extendedRecords).option.value=="ripencc")
+        assert((initRegistryParser ~ Util.eol ~> nextRegistryParser).parseOnly(extendedRecords).option.value=="ripencc")
       }
 
       it("should init parse country code") {
@@ -59,7 +59,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .initCountryCode
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.eof ~> RecordLines.Extended.nextCountryCode)
+        val parseResult: ParseResult[String] = (initParse ~ Util.eol ~> RecordLines.Extended.nextCountryCode)
           .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "EU")
@@ -73,8 +73,8 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .initCountryCode
 
         val parseResult: ParseResult[String] = (
-          initParse ~ Util.eof ~
-            RecordLines.Extended.nextCountryCode ~ Util.eof ~>
+          initParse ~ Util.eol ~
+            RecordLines.Extended.nextCountryCode ~ Util.eol ~>
             RecordLines.Extended.nextCountryCode
           ).parseOnly(extendedRecords)
 
@@ -97,7 +97,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .initType
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.eof ~> RecordLines.Extended.nextType)
+        val parseResult: ParseResult[String] = (initParse ~ Util.eol ~> RecordLines.Extended.nextType)
           .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "ipv6")
@@ -119,7 +119,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .initStart
 
-        val parseResult: ParseResult[String] =  (initParse ~ Util.eof ~> RecordLines.Extended.nextStart)
+        val parseResult: ParseResult[String] =  (initParse ~ Util.eol ~> RecordLines.Extended.nextStart)
           .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "2001:600::")
@@ -132,7 +132,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .initStart
 
         val parseResult: ParseResult[String] =
-          (initParse ~ Util.eof ~ RecordLines.Extended.nextStart ~ Util.eof ~> RecordLines.Extended.nextStart)
+          (initParse ~ Util.eol ~ RecordLines.Extended.nextStart ~ Util.eol ~> RecordLines.Extended.nextStart)
             .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "210331")
@@ -155,7 +155,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .initValue
 
         val parseResult: ParseResult[Long] =
-          (initParse ~ Util.eof ~> RecordLines.Extended.nextValue)
+          (initParse ~ Util.eol ~> RecordLines.Extended.nextValue)
             .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == 32L)
@@ -177,7 +177,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .initDate
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.eof ~> RecordLines.Extended.nextDate)
+        val parseResult: ParseResult[String] = (initParse ~ Util.eol ~> RecordLines.Extended.nextDate)
           .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "20100910")
@@ -199,7 +199,7 @@ class ExtendedRecordLinesTest extends FunSpec with OptionValues {
             .Extended
             .initStatus
 
-        val parseResult: ParseResult[String] =  (initParse ~ Util.eof ~> RecordLines.Extended.nextStatus)
+        val parseResult: ParseResult[String] =  (initParse ~ Util.eol ~> RecordLines.Extended.nextStatus)
           .parseOnly(extendedRecords)
 
         assert(parseResult.option.value == "allocated")
