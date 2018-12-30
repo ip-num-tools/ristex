@@ -13,6 +13,10 @@ object Util {
 
   val eol: Parser[Char] = char('\n')
 
+  val skipToEndOfLine: Parser[Unit] = many(skip(_ != '\n')).map(_ => ())
+
+  val skipToStartOfNextLine: Parser[Unit] = skipToEndOfLine <~ char('\n')
+
   def range(value: Int, lower: Int, upper: Int, errMsg: String): Parser[Int] = {
     if (value < lower || value > upper) {
       err[Int](errMsg)
