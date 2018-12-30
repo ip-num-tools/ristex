@@ -33,7 +33,7 @@ object HeaderLines {
     */
   object VersionLine {
 
-    val initParse: Parser[(Int, String, Int, Int, String, String, String)] = {
+    val initParse: Parser[(Double, String, Int, Int, String, String, String)] = {
       (versionParser <~ pipe,
         registryParser <~ pipe,
         serialNumberParser <~ pipe,
@@ -43,7 +43,7 @@ object HeaderLines {
         UTCoffsetParser <~ manyN(0, eof)).mapN(Tuple7.apply)
     }
 
-    val version: Parser[Int] = {
+    val version: Parser[Double] = {
       for {
         version <- versionParser <~ {
           pipe ~ registryParser ~
@@ -141,7 +141,7 @@ object HeaderLines {
     * summary    = the ASCII string 'summary' (to distinguish the record line).
     */
   object SummaryLine {
-    private val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+    private val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
       VersionLine.initParse ~ char('\n')
 
     val initAll: Parser[List[(String, String, Int, String)]] = {

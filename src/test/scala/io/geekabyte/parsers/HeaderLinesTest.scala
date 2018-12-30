@@ -19,7 +19,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
     describe("VersionLine") {
 
       it("should initParse") {
-        val parseResult: ParseResult[(Int, String, Int, Int, String, String, String)] =
+        val parseResult: ParseResult[(Double, String, Int, Int, String, String, String)] =
           HeaderLines
             .VersionLine
             .initParse
@@ -29,7 +29,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
       }
 
       it("should parse version") {
-        val parseResult: ParseResult[Int] =
+        val parseResult: ParseResult[Double] =
           HeaderLines
             .VersionLine
             .version
@@ -115,7 +115,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
       }
 
       it("should parse all summary lines") {
-        val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+        val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
         val parseResult: ParseResult[List[(String, String, Int, String)]] =
@@ -132,7 +132,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
       }
 
       it("should parse first summary line") {
-        val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+        val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
@@ -148,7 +148,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
       }
 
       it("should parse second summary line") {
-        val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+        val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
@@ -163,7 +163,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
       }
 
       it("should parse third summary line") {
-        val headerVersionLine: Parser[((Int, String, Int, Int, String, String, String), Char)] =
+        val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
           VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines

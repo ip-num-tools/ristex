@@ -32,16 +32,7 @@ object Base {
     (yearParser, monthParser, dateParser).mapN(_ ++ _ ++ _).map(_.mkString(""))
   }
 
-
-  def versionParser(version:Int): Parser[Int] = {
-    int
-      .filter((n: Int) => n == version)
-  }
-
-  def versionParser : Parser[Int] = {
-    int
-      .filter((n: Int) => n == 1 || n == 2)
-  }
+  def versionParser : Parser[Double] = double
 
   val registryParser: Parser[String] = (
       string("afrinic")   |
