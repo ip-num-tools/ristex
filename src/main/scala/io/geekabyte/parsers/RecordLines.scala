@@ -8,7 +8,7 @@ import Util.pipe
 
 object RecordLines {
 
-  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] = SummaryLine.initAll ~ Util.eol
+  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] = SummaryLine.initAll ~ Util.lb
 
   private def regParser(statusParser: Parser[String]): Parser[String] = registryParser <~ {
     pipe ~ countryCodeParse ~

@@ -2,13 +2,13 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto._
-import Util.eol
+import Util.lb
 
 object CommentLines {
 
   val comment: Parser[String] = {
     (many(notChar('#')) ~ char('#').map(_.toString)) ~> {
-      many(letterOrDigit).map(_.mkString) <~ manyN(0, eol)
+      many(letterOrDigit).map(_.mkString) <~ manyN(0, lb)
     }
   }
 
