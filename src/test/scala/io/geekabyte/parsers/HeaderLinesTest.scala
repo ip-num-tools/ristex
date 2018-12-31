@@ -32,7 +32,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Double] =
           HeaderLines
             .VersionLine
-            .version
+            .initVersion
             .parseOnly(records)
 
         assert(parseResult.option.value == 2)
@@ -42,7 +42,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .VersionLine
-            .registry
+            .initRegistry
             .parseOnly(records)
 
         assert(parseResult.option.value == "ripencc")
@@ -52,7 +52,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Int] =
           HeaderLines
             .VersionLine
-            .serial
+            .initSerial
             .parseOnly(records)
 
         assert(parseResult.option.value == 1544569199)
@@ -62,7 +62,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Int] =
           HeaderLines
             .VersionLine
-            .records
+            .initRecords
             .parseOnly(records)
 
         assert(parseResult.option.value == 123397)
@@ -72,7 +72,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .VersionLine
-            .startDate
+            .initStartDate
             .parseOnly(records)
 
         assert(parseResult.option.value == "19830705")
@@ -82,7 +82,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .VersionLine
-            .endDate
+            .initEndDate
             .parseOnly(records)
 
         assert(parseResult.option.value == "20181211")
@@ -92,7 +92,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .VersionLine
-            .UTCoffset
+            .initUTCoffset
             .parseOnly(records)
 
         assert(parseResult.option.value == "+0100")

@@ -44,17 +44,17 @@ Ristex exposes three kinds of parsing functionality:
 The following examples will use the following sample data
 
 ```
-val input =       """
-                    |2|ripencc|1544569199|123397|19830705|20181211|+0100
-                    |ripencc|*|ipv4|*|71111|summary1
-                    |#this is a comment
-                    |ripencc|*|asn|*|33984|summary2
-                    |ripencc|*|ipv6|*|18302|summary3
-                    |#this another comment
-                    |ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
-                    |ripencc|EU|ipv6|2001:600::|32|19990826|allocated
-                    |ripencc|GB|asn|210331|1|20180821|assigned
-                  """.stripMargin
+val input = 
+"""|2|ripencc|1544569199|123397|19830705|20181211|+0100
+ |ripencc|*|ipv4|*|71111|summary1
+ |#this is a comment
+ |ripencc|*|asn|*|33984|summary2
+ |ripencc|*|ipv6|*|18302|summary3
+ |#this another comment
+ |ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ |ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ |ripencc|GB|asn|210331|1|20180821|assigned
+""".stripMargin
 ```
 
 Also the examples assumes the following import has already being done
@@ -68,7 +68,6 @@ import io.geekabyte.parsers.RirstexApi._`
 Comment parsers:
 
 ```
-
 val initComment = CommentLines.initComment.parseOnly(input)
 
 println(initComment.parseOnly(input).option.get) // prints "this is a comment"
@@ -76,10 +75,18 @@ println(initComment.parseOnly(input).option.get) // prints "this is a comment"
 val allComment = CommentLines.all.parseOnly(input)
 
 println(allComment.parseOnly(input).option.get) // prints "List(this is a comment, this another comment)" 
-
 ``` 
  
 Header parsers:
+
+Start by parsing all the version line
+
+```
+// prints "(2.0,ripencc,1544569199,123397,19830705,20181211,+0100)"
+println {
+   HeaderLines.VersionLine.initAll.parseOnly(input).option.get
+}
+```
  
  
 #### TODO Before Release

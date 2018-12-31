@@ -30,6 +30,10 @@ object HeaderLines {
     * enddate    = end date of period, in yyyymmdd format;
     * UTCoffset  = offset from UTC of local RIR producing file,
     * in +/- HHMM format.
+    *
+    *
+    * Note that all methods on VersionLine are suffixed with init, since the version line is the start of all RIR
+    * statistics exchange files
     */
   object VersionLine {
 
@@ -43,7 +47,7 @@ object HeaderLines {
         UTCoffsetParser <~ manyN(0, lb)).mapN(Tuple7.apply)
     }
 
-    val version: Parser[Double] = {
+    val initVersion: Parser[Double] = {
       for {
         version <- versionParser <~ {
           pipe ~ registryParser ~
@@ -57,7 +61,7 @@ object HeaderLines {
       } yield version
     }
 
-    val registry: Parser[String] = {
+    val initRegistry: Parser[String] = {
       val reg: Parser[String] = (versionParser ~ pipe) ~> registryParser
       reg <~ {
           pipe ~ serialNumberParser ~
@@ -68,7 +72,7 @@ object HeaderLines {
       }
     }
 
-    val serial: Parser[Int] = {
+    val initSerial: Parser[Int] = {
       val serial: Parser[Int] = {versionParser ~ pipe ~ registryParser ~ pipe} ~> serialNumberParser
       serial <~ {
           pipe ~ recordCountParser ~
@@ -78,7 +82,7 @@ object HeaderLines {
       }
     }
 
-    val records: Parser[Int] = {
+    val initRecords: Parser[Int] = {
       val record: Parser[Int] = {
         versionParser ~ pipe ~ registryParser ~ pipe ~ serialNumberParser ~ pipe
       } ~> recordCountParser
@@ -90,7 +94,7 @@ object HeaderLines {
       }
     }
 
-    val startDate: Parser[String] = {
+    val initStartDate: Parser[String] = {
       val startdate: Parser[String] = {
         versionParser ~ pipe ~ registryParser ~ pipe ~ serialNumberParser ~ pipe ~ recordCountParser ~ pipe
       } ~> startDateParser
@@ -101,7 +105,7 @@ object HeaderLines {
       }
     }
 
-    val endDate: Parser[String] = {
+    val initEndDate: Parser[String] = {
       val enddate: Parser[String] = {
         versionParser ~ pipe ~ registryParser ~ pipe ~ serialNumberParser ~ pipe ~ recordCountParser ~
           pipe ~ startDateParser ~ pipe
@@ -112,7 +116,7 @@ object HeaderLines {
       }
     }
 
-    val UTCoffset: Parser[String] = {
+    val initUTCoffset: Parser[String] = {
       val enddate: Parser[String] = {
         versionParser ~ pipe ~ registryParser ~ pipe ~ serialNumberParser ~ pipe ~ recordCountParser ~ pipe ~
           startDateParser ~ pipe ~ endDateParser ~ pipe
