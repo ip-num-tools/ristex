@@ -1,14 +1,14 @@
 2|ripencc|1544569199|123397|19830705|20181211|+0100
-#comment1
+# this is comment1
 ripencc|*|ipv4|*|71111|summary
 ripencc|*|asn|*|33984|summary
 ripencc|*|ipv6|*|18302|summary
 ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
-#comment2
+# this is comment2
 ripencc|EU|ipv4|2.16.0.0|524288|20100910|allocated
 ripencc|GB|ipv4|2.24.0.0|524288|20100921|allocated
 ripencc|IT|ipv4|2.32.0.0|1048576|20100429|allocated
-#comment3
+# this is comment3
 ripencc|AE|ipv4|2.48.0.0|262144|20100528|allocated
 ripencc|IL|ipv4|2.52.0.0|262144|20100809|allocated
 ripencc|RU|ipv4|2.60.0.0|262144|20101008|allocated

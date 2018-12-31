@@ -8,7 +8,7 @@ object CommentLines {
 
   val comment: Parser[String] = {
     (many(notChar('#')) ~ char('#').map(_.toString)) ~> {
-      many(letterOrDigit).map(_.mkString) <~ manyN(0, lb)
+      many(letterOrDigit | spaceChar).map(_.mkString) <~ manyN(0, lb)
     }
   }
 

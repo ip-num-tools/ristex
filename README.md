@@ -2,7 +2,72 @@
 
 Ristex is a parser combinator library for parsing the RIr STatistics EXchange files. In theory it should work with 
 the files published by all regional internet registry, in practice, it has only been used with files published by 
-RIPE NCC
+RIPE NCC.
+
+A description of the RIR statistics exchange format, published by RIPE NCC can be found [here](https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt). 
+
+Ristex uses [Atto](http://tpolecat.github.io/atto/), which is a compact, pure-functional, incremental text parsing 
+library for Scala.
+
+Ristex essentially extends Atto, and makes no attempt to abstract it away, hence all of Atto's API is available for 
+use once you import `io.geekabyte.parsers.RirstexApi._`
+
+### Getting started
+
+TODO
+
+### Overview
+
+Always start by importing everything from `RirstexApi` via
+
+```
+import io.geekabyte.parsers.RirstexApi._`
+```
+
+Ristex exposes three kinds of parsing functionality:
+
+1. Line Parsers: Ability to parse a value per line
+    - These allows parsing one single value from a line. After parsing a value, they move to the following line.
+    These parsers are suffixed with `lines`. This include `CommentLines`, `HeaderLines` and `RecordLines`. These 
+    parsers are categorised based on the sections found in the RIR exchange statistics files.
+        - There are two kinds of these parsers. The ones that is used to start the parsing. These are prefixed with 
+        `init`. The other ones are without the prefix `init` and are to be used after the ones prefixed with `init` 
+
+2. Value Parsers: Ability to parse multiple values within a line
+    - These allows parsing multiple values from a single line. After parsing a value from a line, it is still possible
+     to parse other values from the same line. These parsers can be  in `io.geekabyte.parsers.Base`
+
+3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.parsers.Util`
+
+## Examples
+
+The following examples will use the following sample data
+
+```
+2|ripencc|1544569199|123397|19830705|20181211|+0100
+ripencc|*|ipv4|*|71111|summary1
+# this is a comment
+ripencc|*|asn|*|33984|summary2
+ripencc|*|ipv6|*|18302|summary3
+# this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+```
+
+Also the examples assumes the following import has already being done
+
+```
+import io.geekabyte.parsers.RirstexApi._`
+```
+
+##### Line Parser examples
+
+```
+// parsing a comment
+
+``` 
+ 
 
 #### TODO Before Release
 

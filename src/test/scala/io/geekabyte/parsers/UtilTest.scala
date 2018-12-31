@@ -34,7 +34,7 @@ class UtilTest extends  FunSuite with OptionValues {
         CommentLines.comment // next parsed should be comment
       ).parseOnly(commentedRecords)
 
-    assert(result.option.get.equals("comment1"))
+    assert(result.option.get.equals(" this is comment1"))
   }
 
 }
