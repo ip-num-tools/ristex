@@ -1,13 +1,12 @@
 ## RISTEX
 
-Ristex is a parser combinator library for parsing the RIr STatistics EXchange files. In theory it should work with 
-the files published by all regional internet registry, in practice, it has only been used with files published by 
+Ristex is a parser combinator library for parsing the **RI**R **St**atistics **Ex**change files. 
+In theory it should work with the files published by all regional internet registry, in practice, it has only been used with files published by 
 RIPE NCC.
 
 A description of the RIR statistics exchange format, published by RIPE NCC can be found [here](https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt). 
 
-Ristex uses [Atto](http://tpolecat.github.io/atto/), which is a compact, pure-functional, incremental text parsing 
-library for Scala.
+Ristex uses [Atto](http://tpolecat.github.io/atto/), which is a compact, pure-functional, incremental text parsing library for Scala.
 
 Ristex essentially extends Atto, and makes no attempt to abstract it away, hence all of Atto's API is available for 
 use once you import `io.geekabyte.parsers.RirstexApi._`
@@ -26,22 +25,23 @@ import io.geekabyte.parsers.RirstexApi._`
 
 Ristex exposes three kinds of parsing functionality:
 
-1. Line Parsers: Ability to parse a value per line
-    - These allows parsing one single value from a line. After parsing a value, they move to the following line.
-    These parsers are suffixed with `lines`. This include `CommentLines`, `HeaderLines` and `RecordLines`. These 
-    parsers are categorised based on the sections found in the RIR exchange statistics files.
-        - There are two kinds of these parsers. The ones that is used to start the parsing. These are prefixed with 
-        `init`. The other ones are without the prefix `init` and are to be used after the ones prefixed with `init` 
+1) Line Parsers: Ability to parse a value per line
 
-2. Value Parsers: Ability to parse multiple values within a line
-    - These allows parsing multiple values from a single line. After parsing a value from a line, it is still possible
-     to parse other values from the same line. These parsers can be  in `io.geekabyte.parsers.Base`
+These allows parsing one single value from a line. After parsing a value, the parsing moves to the next line. These 
+parsers are suffixed with `lines`. They include `CommentLines`, `HeaderLines` and `RecordLines`. and they are categorised based on the sections found in the RIR exchange statistics files.
+There are two kinds of these parsers. The ones that is used to start the parsing. These are prefixed with `init`. The
+ other ones are without the prefix are to be used after the prefixed ones. 
+ 
+2) Value Parsers: Ability to parse multiple values within a line.
 
-3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.parsers.Util`
+These allow parsing multiple values from a single line. After parsing a value from a line, it is still possible to 
+parse other values from the same line. These parsers can be found in `io.geekabyte.parsers.Base`.
+
+3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.parsers.Util`.
 
 ## Examples
 
-The following examples will use the following sample data
+The code snippets below will use the following sample data as input for parsing
 
 ```
 val input = 
@@ -83,12 +83,14 @@ Start by parsing all the version line
 
 ```
 // prints "(2.0,ripencc,1544569199,123397,19830705,20181211,+0100)"
+
 println {
    HeaderLines.VersionLine.initAll.parseOnly(input).option.get
 }
 ```
 
 Start by parsing the registry line
+
 ```
 // prints "ripencc"
 println {
@@ -97,6 +99,7 @@ println {
 ```
 
 Start by parsing all the comments
+
 ```
 // prints List((ripencc,ipv4,71111,summary1), (ripencc,asn,33984,summary2), (ripencc,ipv6,18302,summary3))
 
@@ -130,7 +133,7 @@ println {
 }
 ``` 
 
-` RecordLines.Extended.initAll` behaves exactly like `RecordLines.Standard.initAll` except for extended version of 
+`RecordLines.Extended.initAll` behaves exactly like `RecordLines.Standard.initAll` except for extended version of 
 the RIR exchange statistic files
  
  
