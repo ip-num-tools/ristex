@@ -33,7 +33,7 @@ object HeaderLines {
     */
   object VersionLine {
 
-    val initParse: Parser[(Double, String, Int, Int, String, String, String)] = {
+    val initAll: Parser[(Double, String, Int, Int, String, String, String)] = {
       (versionParser <~ pipe,
         registryParser <~ pipe,
         serialNumberParser <~ pipe,
@@ -142,7 +142,7 @@ object HeaderLines {
     */
   object SummaryLine {
     private val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-      VersionLine.initParse ~ char('\n')
+      VersionLine.initAll ~ char('\n')
 
     val initAll: Parser[List[(String, String, Int, String)]] = {
       val parser: Parser[(String, String, Int, String)] = (

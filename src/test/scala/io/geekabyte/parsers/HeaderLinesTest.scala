@@ -22,7 +22,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[(Double, String, Int, Int, String, String, String)] =
           HeaderLines
             .VersionLine
-            .initParse
+            .initAll
             .parseOnly(records)
 
         assert(parseResult.option.value == (2,"ripencc",1544569199,123397,"19830705","20181211","+0100"))
@@ -116,7 +116,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse all summary lines") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initParse ~ char('\n')
+          VersionLine.initAll ~ char('\n')
 
         val parseResult: ParseResult[List[(String, String, Int, String)]] =
           (headerVersionLine ~> HeaderLines
@@ -133,7 +133,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse first summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initParse ~ char('\n')
+          VersionLine.initAll ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
@@ -149,7 +149,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse second summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initParse ~ char('\n')
+          VersionLine.initAll ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
@@ -164,7 +164,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse third summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initParse ~ char('\n')
+          VersionLine.initAll ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine

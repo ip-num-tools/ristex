@@ -10,7 +10,7 @@ class CommentLinesTest extends  FunSuite with OptionValues {
 
   test("Parsing a comment") {
     val recordsWithComments: Iterator[String] = Source.fromResource("records_with_comments").getLines()
-    val parseResult: ParseResult[String] = CommentLines.comment.parseOnly(recordsWithComments.toList.mkString("\n"))
+    val parseResult: ParseResult[String] = CommentLines.initComment.parseOnly(recordsWithComments.toList.mkString("\n"))
     assert(parseResult.option.value == " this is comment1")
   }
 
