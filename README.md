@@ -68,11 +68,11 @@ import io.geekabyte.parsers.RirstexApi._`
 ###### Comment parsers:
 
 ```
-val initComment = CommentLines.initComment.parseOnly(input)
+val initComment = CommentLines.initComment
 
 println(initComment.parseOnly(input).option.get) // prints "this is a comment"
 
-val allComment = CommentLines.all.parseOnly(input)
+val allComment = CommentLines.all
 
 println(allComment.parseOnly(input).option.get) // prints "List(this is a comment, this another comment)" 
 ``` 
