@@ -12,6 +12,10 @@ object CommentLines {
     }
   }
 
+  val comment = {
+    char('#') ~> many(letterOrDigit | spaceChar).map(_.mkString) <~ manyN(0, lb)
+  }
+
   val all: Parser[List[String]] = {
     val aComment: Parser[String] = many(notChar('#')) ~> initComment
     many(aComment)

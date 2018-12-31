@@ -9,7 +9,8 @@ import Util.{lb, pipe}
 
 object RecordLines {
 
-  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] = SummaryLine.initAll ~ Util.lb
+  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] =
+    SummaryLine.initAll ~ Util.lb
 
   private def regParser(statusParser: Parser[String]): Parser[String] = registryParser <~ {
     pipe ~ countryCodeParse ~
@@ -130,10 +131,12 @@ object RecordLines {
         ipTypeAndStartValueParser <~ pipe,
         valueParser <~ pipe,
         recordDate <~ pipe,
-        standardStatusParser <~ manyN(0, lb))
+        standardStatusParser)
         .mapN((reg, cc, iptypeandval, value, date, status) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status))
 
-      parseUpUntilRecords ~> sepBy(parser, char('\n'))
+      val skippingComments = parser <~ many(lb ~ CommentLines.comment)
+
+      parseUpUntilRecords ~> sepBy(skippingComments, lb)
     }
 
     val initRegistry: Parser[String] = {
@@ -265,7 +268,9 @@ object RecordLines {
         opaqueIdParser <~ manyN(0, lb))
         .mapN((reg, cc, iptypeandval, value, date, status, opaqueId) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status, opaqueId))
 
-      parseUpUntilRecords ~> sepBy(parser, char('\n'))
+      val skippingComments = parser <~ many(lb ~ CommentLines.comment)
+
+      parseUpUntilRecords ~> sepBy(skippingComments, lb)
     }
 
     val initRegistry: Parser[String] = {

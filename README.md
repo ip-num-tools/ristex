@@ -87,6 +87,14 @@ println {
    HeaderLines.VersionLine.initAll.parseOnly(input).option.get
 }
 ```
+
+Start by parsing the registry line
+```
+// prints "ripencc"
+println {
+ HeaderLines.VersionLine.initRegistry.parseOnly(input).option.get
+}
+```
  
  
 #### TODO Before Release

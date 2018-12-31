@@ -44,7 +44,7 @@ object HeaderLines {
         recordCountParser <~ pipe,
         startDateParser <~ pipe,
         endDateParser <~ pipe,
-        UTCoffsetParser <~ manyN(0, lb)).mapN(Tuple7.apply)
+        UTCoffsetParser).mapN(Tuple7.apply)
     }
 
     val initVersion: Parser[Double] = {
@@ -146,17 +146,19 @@ object HeaderLines {
     */
   object SummaryLine {
     private val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-      VersionLine.initAll ~ char('\n')
+      VersionLine.initAll ~ lb
 
     val initAll: Parser[List[(String, String, Int, String)]] = {
       val parser: Parser[(String, String, Int, String)] = (
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, lb)
+        summaryParser
       ).mapN(Tuple4.apply)
 
-      headerVersionLine ~> sepBy(parser, char('\n'))
+      val skippingComments: Parser[(String, String, Int, String)] = parser <~ many(lb ~ CommentLines.comment)
+      headerVersionLine ~> sepBy(skippingComments, lb)
+
     }
 
     val all: Parser[List[(String, String, Int, String)]] = {
@@ -164,17 +166,21 @@ object HeaderLines {
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, lb)
+        summaryParser
       ).mapN(Tuple4.apply)
 
-      sepBy(parser, char('\n'))
+      val skippingComments = parser <~ many(lb ~ CommentLines.initComment)
+
+      sepBy(skippingComments, lb)
     }
 
     val next: Parser[(String, String, Int, String)] = {
-      (registryParser <~ summaryPipe,
+      val parser: Parser[(String, String, Int, String)] = (registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
-        summaryParser <~ manyN(0, lb)).mapN(Tuple4.apply)
+        summaryParser).mapN(Tuple4.apply)
+
+      parser <~ many(lb ~ CommentLines.initComment)
     }
 
     val initRegistry: Parser[String] = {
@@ -187,7 +193,7 @@ object HeaderLines {
       registryParser <~ {
         summaryPipe ~ ipTypeParser ~
           summaryPipe ~ recordCountParser ~
-          pipe ~ summaryParser ~ manyN(0, lb)
+          pipe ~ summaryParser
       }
     }
 

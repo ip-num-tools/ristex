@@ -2,6 +2,7 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto.{ParseResult, Parser}
+import io.geekabyte.parsers.HeaderLines.SummaryLine
 import org.scalatest.{FunSpec, OptionValues}
 
 import scala.io.Source
