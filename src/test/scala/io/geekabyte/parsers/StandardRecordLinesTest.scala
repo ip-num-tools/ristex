@@ -13,6 +13,13 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
       .getLines()
       .toList.mkString("\n")
 
+
+  private val standardAllRecords: String =
+    Source
+      .fromResource("sample_standard_all_records")
+      .getLines()
+      .toList.mkString("\n")
+
   describe("Records") {
 
     describe("Standard") {
@@ -205,6 +212,23 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         assert(parseResult.option.value == "allocated")
       }
 
+      it("should parse all") {
+        val initParse: Parser[List[(String, String, String, String, Long, String, String)]] =
+          RecordLines
+            .Standard
+            .all
+
+        val parseResult: ParseResult[List[(String, String, String, String, Long, String, String)]] =  initParse
+          .parseOnly(standardAllRecords)
+
+        assert {
+          parseResult.option.value == List(
+            ("ripencc","FR","ipv4","2.0.0.0",1048576l,"20100712","allocated"),
+            ("ripencc","EU","ipv6","2001:600::",32l,"19990826", "allocated"),
+            ("ripencc","GB","asn","210331",1l,"20180821","assigned")
+          )
+        }
+      }
     }
   }
 

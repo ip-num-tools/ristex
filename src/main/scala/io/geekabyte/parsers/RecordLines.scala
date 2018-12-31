@@ -1,10 +1,11 @@
 package io.geekabyte.parsers
 
-import atto.Atto._
+import atto.Atto.{sepBy, _}
 import atto._
+import cats.implicits._
 import io.geekabyte.parsers.Base._
 import io.geekabyte.parsers.HeaderLines.SummaryLine
-import Util.pipe
+import Util.{lb, pipe}
 
 object RecordLines {
 
@@ -122,6 +123,18 @@ object RecordLines {
     * by other agencies.
     */
   object Standard {
+
+    val all: Parser[List[(String, String, String, String, Long, String, String)]] = {
+      val parser = (registryParser <~ pipe,
+        countryCodeParse <~ pipe,
+        ipTypeAndStartValueParser <~ pipe,
+        valueParser <~ pipe,
+        recordDate <~ pipe,
+        standardStatusParser <~ manyN(0, lb))
+        .mapN((reg, cc, iptypeandval, value, date, status) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status))
+
+      parseUpUntilRecords ~> sepBy(parser, char('\n'))
+    }
 
     val initRegistry: Parser[String] = {
       parseUpUntilRecords ~>  {
