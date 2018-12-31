@@ -65,7 +65,7 @@ import io.geekabyte.parsers.RirstexApi._`
 
 ##### Line Parser examples
 
-Comment parsers:
+###### Comment parsers:
 
 ```
 val initComment = CommentLines.initComment.parseOnly(input)
@@ -77,7 +77,7 @@ val allComment = CommentLines.all.parseOnly(input)
 println(allComment.parseOnly(input).option.get) // prints "List(this is a comment, this another comment)" 
 ``` 
  
-Header parsers:
+###### Header parsers:
 
 Start by parsing all the version line
 
@@ -95,14 +95,48 @@ println {
  HeaderLines.VersionLine.initRegistry.parseOnly(input).option.get
 }
 ```
+
+Start by parsing all the comments
+```
+// prints List((ripencc,ipv4,71111,summary1), (ripencc,asn,33984,summary2), (ripencc,ipv6,18302,summary3))
+
+println {
+ HeaderLines.SummaryLine.initAll.parseOnly(input).option.get
+}
+```
+
+Starts by parsing the first registry, skip the comments, then parse the next summary line
+
+```
+// prints (ripencc,asn,33984,summary2)"
+
+print {
+
+((HeaderLines.SummaryLine.initRegistry ~ Util.lb ~ CommentLines.comment ~ Util.lb) 
+      ~> HeaderLines.SummaryLine.next)
+      .parseOnly(input)
+
+}
+
+``` 
+ 
+###### Record parsers: 
+
+Parse all records
+
+```
+// print List((ripencc,FR,ipv4,2.0.0.0,1048576,20100712,allocated), (ripencc,EU,ipv6,2001:600::,32,19990826,allocated), (ripencc,GB,asn,210331,1,20180821,assigned))
+println {
+    RecordLines.Standard.initAll.parseOnly(input).option.get
+}
+``` 
+
+` RecordLines.Extended.initAll` behaves exactly like `RecordLines.Standard.initAll` except for extended version of 
+the RIR exchange statistic files
  
  
 #### TODO Before Release
 
-- ~~Spruce up things a little bit~~
-- Add one or more utility functionality:
-    - Ability to parse a line by country code
-    - Ability to parse a line by IP value (eq, lt, gt)
 - Add some Scaladoc
-- Add installation instructions and examples of usage to README
+- Add installation instructions and 
 - Figure how to use sbt to publish to maven central 
