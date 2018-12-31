@@ -212,11 +212,11 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         assert(parseResult.option.value == "allocated")
       }
 
-      it("should parse all") {
+      it("should init parse all") {
         val initParse: Parser[List[(String, String, String, String, Long, String, String)]] =
           RecordLines
             .Standard
-            .all
+            .initAll
 
         val parseResult: ParseResult[List[(String, String, String, String, Long, String, String)]] =  initParse
           .parseOnly(standardAllRecords)

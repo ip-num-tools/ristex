@@ -124,7 +124,7 @@ object RecordLines {
     */
   object Standard {
 
-    val all: Parser[List[(String, String, String, String, Long, String, String)]] = {
+    val initAll: Parser[List[(String, String, String, String, Long, String, String)]] = {
       val parser = (registryParser <~ pipe,
         countryCodeParse <~ pipe,
         ipTypeAndStartValueParser <~ pipe,
@@ -254,6 +254,20 @@ object RecordLines {
     *
     */
   object Extended {
+
+    val initAll: Parser[List[(String, String, String, String, Long, String, String, String)]] = {
+      val parser = (registryParser <~ pipe,
+        countryCodeParse <~ pipe,
+        ipTypeAndStartValueParser <~ pipe,
+        valueParser <~ pipe,
+        recordDate <~ pipe,
+        extendedStatusParser  <~ pipe,
+        opaqueIdParser <~ manyN(0, lb))
+        .mapN((reg, cc, iptypeandval, value, date, status, opaqueId) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status, opaqueId))
+
+      parseUpUntilRecords ~> sepBy(parser, char('\n'))
+    }
+
     val initRegistry: Parser[String] = {
       parseUpUntilRecords ~>  {
         nextRegistry
