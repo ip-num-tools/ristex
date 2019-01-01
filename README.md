@@ -98,7 +98,7 @@ println {
 }
 ```
 
-Start by parsing all the comments
+Start by parsing all the summary lines
 
 ```
 // prints List((ripencc,ipv4,71111,summary1), (ripencc,asn,33984,summary2), (ripencc,ipv6,18302,summary3))
