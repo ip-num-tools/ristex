@@ -20,7 +20,7 @@ TODO
 Always start by importing everything from `AttoApi` via
 
 ```
-import io.geekabyte.ristex.parsers.AttoApi._`
+import io.geekabyte.ristex.parsers.AttoApi._
 ```
 
 Ristex exposes three kinds of parsing functionality:
@@ -39,7 +39,7 @@ The RIR exchange statistic files is divided into the following sections:
 2. Records: Contains the record entries.
    
 Apart from these, the files can contain comments. Note also that the record lines differs depending on whether the 
-file being viewed is an extended file format or not. More information about the format can be found (here)[https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt] 
+file being viewed is an extended file format or not. More information about the format can be found [here](https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt) 
 
 The above structure of the RIR exchange statistic files is reflected in Ristex:
 
