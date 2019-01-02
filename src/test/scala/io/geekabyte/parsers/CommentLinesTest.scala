@@ -2,6 +2,7 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto._
+import io.geekabyte.ristex.parsers.CommentLines
 import org.scalatest.{FunSuite, OptionValues}
 
 import scala.io.Source

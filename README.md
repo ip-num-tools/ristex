@@ -9,7 +9,7 @@ A description of the RIR statistics exchange format, published by RIPE NCC can b
 Ristex uses [Atto](http://tpolecat.github.io/atto/), which is a compact, pure-functional, incremental text parsing library for Scala.
 
 Ristex essentially extends Atto, and makes no attempt to abstract it away, hence all of Atto's API is available for 
-use once you import `io.geekabyte.parsers.AttoApi._`
+use once you import `io.geekabyte.ristex.parsers.AttoApi._`
 
 ### Getting started
 
@@ -20,7 +20,7 @@ TODO
 Always start by importing everything from `AttoApi` via
 
 ```
-import io.geekabyte.parsers.AttoApi._`
+import io.geekabyte.ristex.parsers.AttoApi._`
 ```
 
 Ristex exposes three kinds of parsing functionality:
@@ -60,7 +60,7 @@ val input =
 Also the examples assumes the following import has already being done
 
 ```
-import io.geekabyte.parsers.AttoApi._`
+import io.geekabyte.ristex.parsers.AttoApi._`
 ```
 
 ##### Line Parser examples

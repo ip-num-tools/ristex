@@ -2,7 +2,8 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto._
-import io.geekabyte.parsers.HeaderLines.VersionLine
+import io.geekabyte.ristex.parsers.HeaderLines.VersionLine
+import io.geekabyte.ristex.parsers.{HeaderLines, Util}
 import org.scalatest.{FunSpec, OptionValues}
 
 import scala.io.Source

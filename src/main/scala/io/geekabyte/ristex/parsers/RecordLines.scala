@@ -1,10 +1,10 @@
-package io.geekabyte.parsers
+package io.geekabyte.ristex.parsers
 
 import atto.Atto.{sepBy, _}
 import atto._
 import cats.implicits._
-import io.geekabyte.parsers.Base._
-import io.geekabyte.parsers.HeaderLines.SummaryLine
+import Base._
+import HeaderLines.SummaryLine
 import Util.{lb, pipe}
 
 object RecordLines {

@@ -3,6 +3,7 @@ package io.geekabyte.parsers
 import atto.Atto._
 import atto._
 import atto.parser.character
+import io.geekabyte.ristex.parsers.{Base, CommentLines, Util}
 import org.scalatest.{FunSuite, OptionValues}
 
 import scala.io.Source

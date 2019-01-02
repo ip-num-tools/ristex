@@ -1,4 +1,4 @@
-package io.geekabyte.parsers
+package io.geekabyte.ristex.parsers
 
 import atto.{parser, syntax}
 
