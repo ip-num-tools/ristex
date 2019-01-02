@@ -28,16 +28,42 @@ Ristex exposes three kinds of parsing functionality:
 1) Line Parsers: Ability to parse a value per line
 
 These allows parsing one single value from a line. After parsing a value, the parsing moves to the next line. These 
-parsers are suffixed with `lines`. They include `CommentLines`, `HeaderLines` and `RecordLines`. and they are categorised based on the sections found in the RIR exchange statistics files.
-There are two kinds of these parsers. The ones that is used to start the parsing. These are prefixed with `init`. The
- other ones are without the prefix are to be used after the prefixed ones. 
+parsers are suffixed with `lines`. They include `CommentLines`, `HeaderLines` and `RecordLines`. and they are 
+categorised based on the sections found in the RIR exchange statistics files which is described below.
+
+The RIR exchange statistic files is divided into the following sections:
+
+1. File Header: Contains meta information about the file. It is made up of:
+   - Version line: Contains information like version, serial number of file etc
+   - Summary line: Contains a summary of the record lines in the file 
+2. Records: Contains the record entries.
+   
+Apart from these, the files can contain comments. Note also that the record lines differs depending on whether the 
+file being viewed is an extended file format or not. More information about the format can be found (here)[https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt] 
+
+The above structure of the RIR exchange statistic files is reflected in Ristex:
+
+| RIR exchange statistic     | Ristex                   |
+| -------------------------  | ------------------------ |
+| File Header/Version line   | HeaderLines.VersionLine  |
+| File Header/Summary line   | HeaderLines.SummaryLine  |
+| Records (standard format)  | RecordLines.Standard     |
+| Records (extended format)  | RecordLines.Extended     |
+| Comments                   | CommentLines              |
+
+
+There are two kinds of line parsers. The ones that is used to start the parsing. These are prefixed with `init`. 
+Example is `HeaderLines.SummaryLine.initRegistry` which starts the parsing from the first registry value in the 
+Summary section.
+
+The other ones are without the `init` prefix and are to be used after the prefixed ones. 
  
 2) Value Parsers: Ability to parse multiple values within a line.
 
 These allow parsing multiple values from a single line. After parsing a value from a line, it is still possible to 
-parse other values from the same line. These parsers can be found in `io.geekabyte.parsers.Base`.
+parse other values from the same line. These parsers can be found in `io.geekabyte.ristex.parsers.Base`.
 
-3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.parsers.Util`.
+3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.ristex.parsers.Util`.
 
 ## Examples
 
