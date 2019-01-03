@@ -165,5 +165,4 @@ the RIR exchange statistic files
  
 #### TODO Before Release
 
-- Add installation instructions and 
-- Figure how to use sbt to publish to maven central 
+- Add installation instructions
