@@ -82,9 +82,9 @@ The code snippets below will use the following sample data as input for parsing
 val input = 
 """|2|ripencc|1544569199|123397|19830705|20181211|+0100
  |ripencc|*|ipv4|*|71111|summary
- |#this is a comment
  |ripencc|*|asn|*|33984|summary
  |ripencc|*|ipv6|*|18302|summary
+ |#this is a comment
  |#this another comment
  |ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
  |ripencc|EU|ipv6|2001:600::|32|19990826|allocated
@@ -98,9 +98,9 @@ Also the examples assumes the following import has already being done
 import io.geekabyte.ristex.parsers.AttoApi._`
 ```
 
-##### Line Parser examples
+### Line Parser examples
 
-###### Comment parsers:
+#### Comment lines parsing (via CommentLines):
 
 ```
 val initComment = CommentLines.initComment
@@ -112,7 +112,7 @@ val allComment = CommentLines.all
 println(allComment.parseOnly(input).option.get) // prints "List(this is a comment, this another comment)" 
 ``` 
  
-###### Header parsers:
+#### Header section parsing (via HeaderLines.VersionLine):
 
 Start by parsing all the version line
 
@@ -124,7 +124,7 @@ println {
 }
 ```
 
-Start by parsing the registry line
+Start by parsing the registry in the version line
 
 ```
 // prints "ripencc"
@@ -133,9 +133,13 @@ println {
 }
 ```
 
+#### Header section parsing (via HeaderLines.SummaryLine):
+
 Start by parsing all the summary lines
 
 ```
+val allSummaryLinesParser = HeaderLines.SummaryLine.initAll
+
 // prints List((ripencc,ipv4,71111,summary), (ripencc,asn,33984,summary), (ripencc,ipv6,18302,summary))
 
 println {
@@ -157,7 +161,7 @@ print {
 }
 ``` 
  
-###### Record parsers: 
+#### Record entry parsing (via RecordLines.Standard and RecordLines.Extended): 
 
 Parse all records
 
