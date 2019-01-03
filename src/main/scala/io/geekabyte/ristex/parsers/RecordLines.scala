@@ -122,6 +122,9 @@ object RecordLines {
     * This is the allocation or assignment made by the
     * registry producing the file and not any sub-assignment
     * by other agencies.
+    *
+    * * See https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt for more information on the
+    * * format of a RIR statistic exchange file
     */
   object Standard {
 
@@ -255,6 +258,8 @@ object RecordLines {
     * extensions In future, this may include extra data that
     * is yet to be defined.
     *
+    * See https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt for more information on the
+    * format of a RIR statistic exchange file
     */
   object Extended {
 

@@ -1,7 +1,7 @@
 2|ripencc|1544569199|123397|19830705|20181211|+0100
-ripencc|*|ipv4|*|71111|summary1
-ripencc|*|asn|*|33984|summary2
-ripencc|*|ipv6|*|18302|summary3
+ripencc|*|ipv4|*|71111|summary
+ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
 ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
 ripencc|EU|ipv6|2001:600::|32|19990826|allocated
 ripencc|GB|asn|210331|1|20180821|assigned

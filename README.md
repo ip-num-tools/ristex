@@ -72,10 +72,10 @@ The code snippets below will use the following sample data as input for parsing
 ```
 val input = 
 """|2|ripencc|1544569199|123397|19830705|20181211|+0100
- |ripencc|*|ipv4|*|71111|summary1
+ |ripencc|*|ipv4|*|71111|summary
  |#this is a comment
- |ripencc|*|asn|*|33984|summary2
- |ripencc|*|ipv6|*|18302|summary3
+ |ripencc|*|asn|*|33984|summary
+ |ripencc|*|ipv6|*|18302|summary
  |#this another comment
  |ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
  |ripencc|EU|ipv6|2001:600::|32|19990826|allocated
@@ -127,7 +127,7 @@ println {
 Start by parsing all the summary lines
 
 ```
-// prints List((ripencc,ipv4,71111,summary1), (ripencc,asn,33984,summary2), (ripencc,ipv6,18302,summary3))
+// prints List((ripencc,ipv4,71111,summary), (ripencc,asn,33984,summary), (ripencc,ipv6,18302,summary))
 
 println {
  HeaderLines.SummaryLine.initAll.parseOnly(input).option.get
@@ -137,7 +137,7 @@ println {
 Starts by parsing the first registry, skip the comments, then parse the next summary line
 
 ```
-// prints (ripencc,asn,33984,summary2)"
+// prints (ripencc,asn,33984,summary)"
 
 print {
 
@@ -165,6 +165,5 @@ the RIR exchange statistic files
  
 #### TODO Before Release
 
-- Add some Scaladoc
 - Add installation instructions and 
 - Figure how to use sbt to publish to maven central 

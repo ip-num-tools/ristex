@@ -34,6 +34,9 @@ object HeaderLines {
     *
     * Note that all methods on VersionLine are suffixed with init, since the version line is the start of all RIR
     * statistics exchange files
+    *
+    * * See https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt for more information on the
+    * * format of a RIR statistic exchange file
     */
   object VersionLine {
 
@@ -143,6 +146,9 @@ object HeaderLines {
     *               {asn,ipv4,ipv6}
     * count      = the number of record lines of this type in the file;
     * summary    = the ASCII string 'summary' (to distinguish the record line).
+    *
+    * * See https://ftp.ripe.net/pub/stats/ripencc/RIR-Statistics-Exchange-Format.txt for more information on the
+    * * format of a RIR statistic exchange file
     */
   object SummaryLine {
     private val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =

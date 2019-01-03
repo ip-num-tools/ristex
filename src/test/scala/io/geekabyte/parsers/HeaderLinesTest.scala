@@ -109,9 +109,9 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
             .parseOnly(records)
 
         assert(parseResult.option.value == List(
-          ("ripencc","ipv4",71111,"summary1"),
-          ("ripencc","asn",33984,"summary2"),
-          ("ripencc","ipv6",18302,"summary3"))
+          ("ripencc","ipv4",71111,"summary"),
+          ("ripencc","asn",33984,"summary"),
+          ("ripencc","ipv6",18302,"summary"))
         )
       }
 
@@ -126,9 +126,9 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
             .parseOnly(records)
 
         assert(parseResult.option.value == List(
-          ("ripencc","ipv4",71111,"summary1"),
-          ("ripencc","asn",33984,"summary2"),
-          ("ripencc","ipv6",18302,"summary3"))
+          ("ripencc","ipv4",71111,"summary"),
+          ("ripencc","asn",33984,"summary"),
+          ("ripencc","ipv6",18302,"summary"))
         )
       }
 
@@ -145,7 +145,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
           (headerVersionLine ~> summaryLineParser)
             .parseOnly(records)
 
-        assert(parseResult.option.value == ("ripencc","ipv4",71111,"summary1"))
+        assert(parseResult.option.value == ("ripencc","ipv4",71111,"summary"))
       }
 
       it("should parse second summary line") {
@@ -160,7 +160,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
           ((headerVersionLine ~ summaryLineParser ~ Util.lb) ~> summaryLineParser)
             .parseOnly(records)
 
-        assert(parseResult.option.value == ("ripencc","asn",33984,"summary2"))
+        assert(parseResult.option.value == ("ripencc","asn",33984,"summary"))
       }
 
       it("should parse third summary line") {
@@ -175,7 +175,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
           ((headerVersionLine ~ summaryLineParser ~ Util.lb ~ summaryLineParser ~ Util.lb) ~> summaryLineParser)
             .parseOnly(records)
 
-        assert(parseResult.option.value == ("ripencc","ipv6",18302,"summary3"))
+        assert(parseResult.option.value == ("ripencc","ipv6",18302,"summary"))
       }
 
       it("should parse registry in first summary line") {
@@ -276,7 +276,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
             .initSummary
             .parseOnly(records)
 
-        assert(parseResult.option.value == "summary1")
+        assert(parseResult.option.value == "summary")
       }
 
       it("should parse summary in second summary line") {
@@ -286,7 +286,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
             .initSummary ~ Util.lb) ~> HeaderLines.SummaryLine.nextSummary)
             .parseOnly(records)
 
-        assert(parseResult.option.value == "summary2")
+        assert(parseResult.option.value == "summary")
       }
 
       it("should parse summary in third summary line") {
@@ -296,7 +296,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
             .initSummary ~ Util.lb ~ HeaderLines.SummaryLine.nextSummary ~ Util.lb) ~> HeaderLines.SummaryLine.nextSummary)
             .parseOnly(records)
 
-        assert(parseResult.option.value == "summary3")
+        assert(parseResult.option.value == "summary")
       }
 
     }

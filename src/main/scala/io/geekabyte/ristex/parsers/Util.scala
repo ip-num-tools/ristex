@@ -28,10 +28,6 @@ object Util {
     anyChar.filter((character: Char) => !excepts.contains(character.toString))
   }
 
-  def anyStringOrDigit: Parser[String] = {
-    many(letterOrDigit).map(_.mkString)
-  }
-
   def fixed(n:Int): Parser[Int] = {
     count(n, digit).map(_.mkString).flatMap { s =>
       try ok(s.toInt) catch { case e: NumberFormatException => err(e.toString) }
