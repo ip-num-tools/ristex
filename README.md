@@ -1,5 +1,8 @@
 ## RISTEX
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex)
+
+
 Ristex is a parser combinator library for parsing the **RI**R **St**atistics **Ex**change files. 
 In theory it should work with the files published by all regional internet registry, in practice, it has only been used with files published by 
 RIPE NCC.
@@ -13,7 +16,11 @@ use once you import `io.geekabyte.ristex.parsers.AttoApi._`
 
 ### Getting started
 
-TODO
+Add via sbt as follows:
+
+```
+libraryDependencies += "io.geekabyte.ristex" %% "ristex" % "${version}"
+```
 
 ### Overview
 
@@ -164,7 +171,3 @@ println {
 `RecordLines.Extended.initAll` behaves exactly like `RecordLines.Standard.initAll` except for extended version of 
 the RIR exchange statistic files
  
- 
-#### TODO Before Release
-
-- Add installation instructions
