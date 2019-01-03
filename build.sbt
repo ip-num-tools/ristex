@@ -1,6 +1,6 @@
 lazy val root = (project in file(".")).settings(
   inThisBuild(List(
-    organization := "io.geekabyte",
+    organization := "io.geekabyte.ristex",
     scalaVersion := "2.12.7",
     version      := "0.1.0-SNAPSHOT",
     homepage     := Some(url("https://github.com/ip-num-tools/ristex")),
