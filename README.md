@@ -25,7 +25,7 @@ import io.geekabyte.ristex.parsers.AttoApi._
 
 Ristex exposes three kinds of parsing functionality:
 
-1) Line Parsers: Ability to parse a value per line
+#### 1. Line Parsers: Parses a value per line
 
 These allows parsing one single value from a line. After parsing a value, the parsing moves to the next line. These 
 parsers are suffixed with `lines`. They include `CommentLines`, `HeaderLines` and `RecordLines`. and they are 
@@ -58,12 +58,14 @@ Summary section.
 
 The other ones are without the `init` prefix and are to be used after the prefixed ones. 
  
-2) Value Parsers: Ability to parse multiple values within a line.
+#### 2. Value Parsers: Parses multiple values within a line.
 
 These allow parsing multiple values from a single line. After parsing a value from a line, it is still possible to 
 parse other values from the same line. These parsers can be found in `io.geekabyte.ristex.parsers.Base`.
 
-3. Utility Parsers: These are utility parsers and can be found in `io.geekabyte.ristex.parsers.Util`.
+#### 3. Utility Parsers
+
+These are utility parsers and can be found in `io.geekabyte.ristex.parsers.Util`.
 
 ## Examples
 
