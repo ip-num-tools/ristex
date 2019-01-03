@@ -2,7 +2,7 @@ lazy val root = (project in file(".")).settings(
   inThisBuild(List(
     organization := "io.geekabyte.ristex",
     scalaVersion := "2.12.7",
-    version      := "0.1.0-SNAPSHOT",
+    version      := "0.1.0",
     homepage     := Some(url("https://github.com/ip-num-tools/ristex")),
     scmInfo := Some(ScmInfo(url("https://github.com/ip-num-tools/ristex"), "git@github.com:ip-num-tools/ristex.git")),
     developers := List(Developer("dadepo", "Dadepo Aderemi", "dadepo@gmail.com", url("https://github.com/dadepo"))),
