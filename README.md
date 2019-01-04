@@ -92,86 +92,238 @@ val input =
 """.stripMargin
 ```
 
-Also the examples assumes the following import has already being done
+Also the examples assumes the following imports has already being made
 
 ```
-import io.geekabyte.ristex.parsers.AttoApi._`
+scala> import io.geekabyte.ristex.parsers._
+import io.geekabyte.ristex.parsers._
+
+scala> import io.geekabyte.ristex.parsers.AttoApi._
+import io.geekabyte.ristex.parsers.AttoApi._
+```
+
+Finally the output of the examples is in the Atto format where the value parsed and value remaining after parsing is 
+seen. For example:
+
+```
+scala> Parser.parseOnly(input)
+
+res3: atto.ParseResult[String] =
+Done(
+remaining text after parsing
+,parsed text)
 ```
 
 ### Line Parser examples
 
 #### Comment lines parsing (via CommentLines):
 
+Parse the first comment:
+
 ```
-val initComment = CommentLines.initComment
-
-println(initComment.parseOnly(input).option.get) // prints "this is a comment"
-
-val allComment = CommentLines.all
-
-println(allComment.parseOnly(input).option.get) // prints "List(this is a comment, this another comment)" 
+CommentLines.firstComment.parseOnly(input)
+ 
+res3: atto.ParseResult[String] =
+Done(#this another comment
+ ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ ripencc|GB|asn|210331|1|20180821|assigned
+       ,this is a comment)
 ``` 
+
+Parse all the comments: 
+
+```
+scala> CommentLines.all.parseOnly(input)
+
+res4: atto.ParseResult[List[String]] =
+Done(ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,List(this is a comment, this another comment))
+```
  
 #### Header section parsing (via HeaderLines.VersionLine):
 
-Start by parsing all the version line
+Initiate the parsing by parsing the version line
 
 ```
-// prints "(2.0,ripencc,1544569199,123397,19830705,20181211,+0100)"
+scala> HeaderLines.VersionLine.initParse.parseOnly(input)
 
-println {
-   HeaderLines.VersionLine.initAll.parseOnly(input).option.get
-}
+res0: atto.ParseResult[(Double, String, Int, Int, String, String, String)] =
+Done(
+ripencc|*|ipv4|*|71111|summary
+ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,(2.0,ripencc,1544569199,123397,19830705,20181211,+0100))
 ```
 
-Start by parsing the registry in the version line
+Initiate the parsing by parsing the version in the version line
 
 ```
-// prints "ripencc"
-println {
- HeaderLines.VersionLine.initRegistry.parseOnly(input).option.get
-}
+scala> HeaderLines.VersionLine.initVersion.parseOnly(input)
+
+res1: atto.ParseResult[Double] =
+Done(
+ripencc|*|ipv4|*|71111|summary
+ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,2.0)
+```
+
+
+Initiate the parsing by parsing the UTC Offset in the version line
+
+```
+scala> HeaderLines.VersionLine.initUTCoffset.parseOnly(input)
+
+res2: atto.ParseResult[String] =
+Done(
+ripencc|*|ipv4|*|71111|summary
+ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,+0100)
 ```
 
 #### Header section parsing (via HeaderLines.SummaryLine):
 
-Start by parsing all the summary lines
+Initiate the parsing by parsing all the summary lines
 
 ```
-val allSummaryLinesParser = HeaderLines.SummaryLine.initAll
+scala> HeaderLines.SummaryLine.initParseAll.parseOnly(input)
 
-// prints List((ripencc,ipv4,71111,summary), (ripencc,asn,33984,summary), (ripencc,ipv6,18302,summary))
-
-println {
- HeaderLines.SummaryLine.initAll.parseOnly(input).option.get
-}
+res0: atto.ParseResult[List[(String, String, Int, String)]] =
+Done(#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,List((ripencc,ipv4,71111,summary), (ripencc,asn,33984,summary), (ripencc,ipv6,18302,summary)))
 ```
 
-Starts by parsing the first registry, skip the comments, then parse the next summary line
+Initiate the parsing by parsing the first summary line
 
 ```
-// prints (ripencc,asn,33984,summary)"
+scala> HeaderLines.SummaryLine.initParseFirst.parseOnly(input)
 
-print {
-
-((HeaderLines.SummaryLine.initRegistry ~ Util.lb ~ CommentLines.comment ~ Util.lb) 
-      ~> HeaderLines.SummaryLine.next)
-      .parseOnly(input)
-
-}
+res1: atto.ParseResult[(String, String, Int, String)] =
+Done(ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,(ripencc,ipv4,71111,summary))
 ``` 
+
+Initiate the parsing by parsing the first summary line 
+and then parse the second line
+
+```
+scala> (HeaderLines.SummaryLine.initParseFirst ~> HeaderLines.SummaryLine.nextLine).parseOnly(input)
+
+res2: atto.ParseResult[(String, String, Int, String)] =
+Done(#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,(ripencc,asn,33984,summary))
+```
+
+Initiate the parsing by parsing the first summary line 
+and then parse the resource type from second line
+
+```
+scala> (HeaderLines.SummaryLine.initParseFirst ~> HeaderLines.SummaryLine.nextType).parseOnly(input)
+
+res3: atto.ParseResult[String] =
+Done(
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,asn)
+```
+
+Initiate the parsing by parsing the first resource type
+
+```
+scala> (HeaderLines.SummaryLine.firstIPType).parseOnly(input)
+
+res4: atto.ParseResult[String] =
+Done(
+ripencc|*|asn|*|33984|summary
+ripencc|*|ipv6|*|18302|summary
+#this is a comment
+#this another comment
+ripencc|FR|ipv4|2.0.0.0|1048576|20100712|allocated
+ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,ipv4)
+
+```
  
 #### Record entry parsing (via RecordLines.Standard and RecordLines.Extended): 
 
-Parse all records
+> Note that `RecordLines.Extended.*` behaves exactly like `RecordLines.Standard.*` except that extended version of 
+  the RIR exchange statistic files has `RecordLines.Extended.firstOpaqueId` and `RecordLines.Extended.nextOpaqueId`
+
+Initiate the parse by parsing all records
 
 ```
-// print List((ripencc,FR,ipv4,2.0.0.0,1048576,20100712,allocated), (ripencc,EU,ipv6,2001:600::,32,19990826,allocated), (ripencc,GB,asn,210331,1,20180821,assigned))
-println {
-    RecordLines.Standard.initAll.parseOnly(input).option.get
-}
+scala> (RecordLines.Standard.initParseAll).parseOnly(input)
+
+res1: atto.ParseResult[List[(String, String, String, String, Long, String, String)]] = Done(
+,List(
+(ripencc,FR,ipv4,2.0.0.0,1048576,20100712,allocated), 
+(ripencc,EU,ipv6,2001:600::,32,19990826,allocated), 
+(ripencc,GB,asn,210331,1,20180821,assigned))
+)
 ``` 
 
-`RecordLines.Extended.initAll` behaves exactly like `RecordLines.Standard.initAll` except for extended version of 
-the RIR exchange statistic files
+Initiate the parse by parsing the first record line
+```
+scala> (RecordLines.Standard.initParseFirst).parseOnly(input)
+
+res1: atto.ParseResult[(String, String, String, String, Long, String, String)] =
+Done(ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned,(ripencc,FR,ipv4,2.0.0.0,1048576,20100712,allocated))
+```
+
+Initiate the parse by parsing the first country code
+
+```
+scala> (RecordLines.Standard.firstCountryCode).parseOnly(input)
+
+res2: atto.ParseResult[String] =
+Done(ripencc|EU|ipv6|2001:600::|32|19990826|allocated
+ripencc|GB|asn|210331|1|20180821|assigned
+      ,FR)
+```
+
+Initiate the parse by parsing the first country code, then parse the second country code
+
+```
+scala> (RecordLines.Standard.firstCountryCode ~> RecordLines.Standard.nextCountryCode).parseOnly(input)
+
+res0: atto.ParseResult[String] = Done(ripencc|GB|asn|210331|1|20180821|assigned,EU)
+```
+
  

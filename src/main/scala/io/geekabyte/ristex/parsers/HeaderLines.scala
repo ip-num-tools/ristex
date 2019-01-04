@@ -40,7 +40,7 @@ object HeaderLines {
     */
   object VersionLine {
 
-    val initAll: Parser[(Double, String, Int, Int, String, String, String)] = {
+    val initParse: Parser[(Double, String, Int, Int, String, String, String)] = {
       (versionParser <~ pipe,
         registryParser <~ pipe,
         serialNumberParser <~ pipe,
@@ -152,9 +152,9 @@ object HeaderLines {
     */
   object SummaryLine {
     private val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-      VersionLine.initAll ~ lb
+      VersionLine.initParse ~ lb
 
-    val initAll: Parser[List[(String, String, Int, String)]] = {
+    val initParseAll: Parser[List[(String, String, Int, String)]] = {
       val parser: Parser[(String, String, Int, String)] = (
         registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
@@ -162,9 +162,17 @@ object HeaderLines {
         summaryParser
       ).mapN(Tuple4.apply)
 
-      val skippingComments: Parser[(String, String, Int, String)] = parser <~ many(lb ~ CommentLines.comment)
-      headerVersionLine ~> sepBy(skippingComments, lb)
+      val skippingComments: Parser[(String, String, Int, String)] = parser <~ (skipMany(lb.map(_.toString)) ~ skipMany(CommentLines.comment))
+      headerVersionLine ~> many(skippingComments)
+    }
 
+    val initParseFirst: Parser[(String, String, Int, String)] = {
+      headerVersionLine ~> (
+        registryParser <~ summaryPipe,
+        ipTypeParser <~ summaryPipe,
+        recordCountParser <~ pipe,
+        summaryParser <~ lb
+      ).mapN(Tuple4.apply)
     }
 
     val all: Parser[List[(String, String, Int, String)]] = {
@@ -175,21 +183,21 @@ object HeaderLines {
         summaryParser
       ).mapN(Tuple4.apply)
 
-      val skippingComments = parser <~ many(lb ~ CommentLines.initComment)
+      val skippingComments = parser <~ many(lb ~ CommentLines.firstComment)
 
       sepBy(skippingComments, lb)
     }
 
-    val next: Parser[(String, String, Int, String)] = {
+    val nextLine: Parser[(String, String, Int, String)] = {
       val parser: Parser[(String, String, Int, String)] = (registryParser <~ summaryPipe,
         ipTypeParser <~ summaryPipe,
         recordCountParser <~ pipe,
         summaryParser).mapN(Tuple4.apply)
 
-      parser <~ many(lb ~ CommentLines.initComment)
+      parser <~ many(lb ~ CommentLines.firstComment) ~ lb
     }
 
-    val initRegistry: Parser[String] = {
+    val firstRegistry: Parser[String] = {
       headerVersionLine ~> {
         nextRegistry
       }
@@ -200,10 +208,10 @@ object HeaderLines {
         summaryPipe ~ ipTypeParser ~
           summaryPipe ~ recordCountParser ~
           pipe ~ summaryParser
-      }
+      } <~ lb
     }
 
-    val initType: Parser[String] = {
+    val firstIPType: Parser[String] = {
       headerVersionLine ~> {
         nextType
       }
@@ -211,10 +219,11 @@ object HeaderLines {
 
     val nextType = {
       val ipType: Parser[String] = (registryParser ~ summaryPipe) ~> ipTypeParser
-      ipType <~ summaryPipe ~ recordCountParser ~ pipe ~ summaryParser ~ manyN(0, lb)
+
+      ipType <~ summaryPipe ~ recordCountParser ~ pipe ~ summaryParser ~ lb
     }
 
-    val initCount: Parser[Int] = {
+    val firstCount: Parser[Int] = {
       headerVersionLine ~> {
         nextCount
       }
@@ -222,19 +231,19 @@ object HeaderLines {
 
     val nextCount = {
       val recordCount: Parser[Int] = (registryParser ~ summaryPipe ~ ipTypeParser ~ summaryPipe) ~> recordCountParser
-      recordCount <~ pipe ~ summaryParser ~ manyN(0, lb)
+      recordCount <~ pipe ~ summaryParser ~ lb
     }
 
-    val initSummary: Parser[String] = {
+    val firstSummaryTag: Parser[String] = {
       headerVersionLine ~> {
-        nextSummary
+        nextSummaryTag
       }
     }
 
-    val nextSummary: Parser[String] = {
+    val nextSummaryTag: Parser[String] = {
       val summary: Parser[String] =
         (registryParser ~ summaryPipe ~ ipTypeParser ~ summaryPipe ~ recordCountParser ~ pipe) ~> summaryParser
-      summary <~ manyN(0, lb)
+      summary <~ lb
     }
 
   }

@@ -2,9 +2,10 @@ package io.geekabyte.parsers
 
 import atto.Atto._
 import atto._
-import io.geekabyte.ristex.parsers.HeaderLines.VersionLine
+import io.geekabyte.ristex.parsers.HeaderLines.{SummaryLine, VersionLine}
 import io.geekabyte.ristex.parsers.{HeaderLines, Util}
 import org.scalatest.{FunSpec, OptionValues}
+import shapeless.PolyDefns.~>
 
 import scala.io.Source
 
@@ -23,7 +24,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[(Double, String, Int, Int, String, String, String)] =
           HeaderLines
             .VersionLine
-            .initAll
+            .initParse
             .parseOnly(records)
 
         assert(parseResult.option.value == (2,"ripencc",1544569199,123397,"19830705","20181211","+0100"))
@@ -105,7 +106,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[List[(String, String, Int, String)]] =
           HeaderLines
             .SummaryLine
-            .initAll
+            .initParseAll
             .parseOnly(records)
 
         assert(parseResult.option.value == List(
@@ -115,9 +116,19 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         )
       }
 
+      it("should init parse with first summary line") {
+        val parseResult: ParseResult[(String, String, Int, String)] =
+          HeaderLines
+            .SummaryLine
+            .initParseFirst
+            .parseOnly(records)
+
+        assert(parseResult.option.value == ("ripencc","ipv4",71111,"summary"))
+      }
+
       it("should parse all summary lines") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initAll ~ char('\n')
+          VersionLine.initParse ~ char('\n')
 
         val parseResult: ParseResult[List[(String, String, Int, String)]] =
           (headerVersionLine ~> HeaderLines
@@ -134,11 +145,11 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse first summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initAll ~ char('\n')
+          VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
-          .next
+          .nextLine
 
 
         val parseResult: ParseResult[(String, String, Int, String)] =
@@ -150,14 +161,14 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse second summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initAll ~ char('\n')
+          VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
-          .next
+          .nextLine
 
         val parseResult: ParseResult[(String, String, Int, String)] =
-          ((headerVersionLine ~ summaryLineParser ~ Util.lb) ~> summaryLineParser)
+          ((headerVersionLine ~ summaryLineParser) ~> summaryLineParser)
             .parseOnly(records)
 
         assert(parseResult.option.value == ("ripencc","asn",33984,"summary"))
@@ -165,14 +176,14 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
 
       it("should parse third summary line") {
         val headerVersionLine: Parser[((Double, String, Int, Int, String, String, String), Char)] =
-          VersionLine.initAll ~ char('\n')
+          VersionLine.initParse ~ char('\n')
 
         val summaryLineParser: Parser[(String, String, Int, String)] = HeaderLines
           .SummaryLine
-          .next
+          .nextLine
 
         val parseResult: ParseResult[(String, String, Int, String)] =
-          ((headerVersionLine ~ summaryLineParser ~ Util.lb ~ summaryLineParser ~ Util.lb) ~> summaryLineParser)
+          ((headerVersionLine ~ summaryLineParser ~ summaryLineParser) ~> summaryLineParser)
             .parseOnly(records)
 
         assert(parseResult.option.value == ("ripencc","ipv6",18302,"summary"))
@@ -182,7 +193,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .SummaryLine
-            .initRegistry
+            .firstRegistry
             .parseOnly(records)
         assert(parseResult.option.value == "ripencc")
       }
@@ -191,10 +202,10 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initRegistry ~ Util.lb) ~>
-            HeaderLines.SummaryLine.nextRegistry // second line
+            .firstRegistry) ~> HeaderLines.SummaryLine.nextRegistry // second line
             )
             .parseOnly(records)
+
         assert(parseResult.option.value == "ripencc")
       }
 
@@ -202,10 +213,10 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initRegistry ~ Util.lb ~ HeaderLines.SummaryLine.nextRegistry ~ Util.lb) ~>
+            .firstRegistry ~ HeaderLines.SummaryLine.nextRegistry) ~>
             HeaderLines.SummaryLine.nextRegistry // third line
-            )
-            .parseOnly(records)
+            ).parseOnly(records)
+
         assert(parseResult.option.value == "ripencc")
       }
 
@@ -213,7 +224,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .SummaryLine
-            .initType
+            .firstIPType
             .parseOnly(records)
         
         assert(parseResult.option.value == "ipv4")
@@ -223,7 +234,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initType ~ Util.lb) ~> HeaderLines.SummaryLine.nextType)
+            .firstIPType) ~> HeaderLines.SummaryLine.nextType)
             .parseOnly(records)
         
         assert(parseResult.option.value == "asn")
@@ -233,7 +244,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initType ~ Util.lb ~ HeaderLines.SummaryLine.nextType ~ Util.lb) ~> HeaderLines.SummaryLine.nextType)
+            .firstIPType ~ HeaderLines.SummaryLine.nextType) ~> HeaderLines.SummaryLine.nextType)
             .parseOnly(records)
         
         assert(parseResult.option.value == "ipv6")
@@ -243,7 +254,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Int] =
           HeaderLines
             .SummaryLine
-            .initCount
+            .firstCount
             .parseOnly(records)
         
         assert(parseResult.option.value == 71111)
@@ -253,7 +264,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Int] =
           ((HeaderLines
             .SummaryLine
-            .initCount ~ Util.lb) ~> HeaderLines.SummaryLine.nextCount)
+            .firstCount) ~> HeaderLines.SummaryLine.nextCount)
             .parseOnly(records)
         
         assert(parseResult.option.value == 33984)
@@ -263,7 +274,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[Int] =
           ((HeaderLines
             .SummaryLine
-            .initCount ~ Util.lb ~ HeaderLines.SummaryLine.nextCount ~ Util.lb) ~> HeaderLines.SummaryLine.nextCount)
+            .firstCount ~ HeaderLines.SummaryLine.nextCount) ~> HeaderLines.SummaryLine.nextCount)
             .parseOnly(records)
 
         assert(parseResult.option.value == 18302)
@@ -273,7 +284,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           HeaderLines
             .SummaryLine
-            .initSummary
+            .firstSummaryTag
             .parseOnly(records)
 
         assert(parseResult.option.value == "summary")
@@ -283,7 +294,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initSummary ~ Util.lb) ~> HeaderLines.SummaryLine.nextSummary)
+            .firstSummaryTag) ~> HeaderLines.SummaryLine.nextSummaryTag)
             .parseOnly(records)
 
         assert(parseResult.option.value == "summary")
@@ -293,7 +304,7 @@ class HeaderLinesTest extends  FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           ((HeaderLines
             .SummaryLine
-            .initSummary ~ Util.lb ~ HeaderLines.SummaryLine.nextSummary ~ Util.lb) ~> HeaderLines.SummaryLine.nextSummary)
+            .firstSummaryTag ~ HeaderLines.SummaryLine.nextSummaryTag) ~> HeaderLines.SummaryLine.nextSummaryTag)
             .parseOnly(records)
 
         assert(parseResult.option.value == "summary")

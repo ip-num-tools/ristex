@@ -32,7 +32,7 @@ class UtilTest extends  FunSuite with OptionValues {
     val result: ParseResult[String] = (
       Base.versionParser ~    // start by parsing version, then...
         Util.skipToStartOfNextLine ~> // skip to start of next line,
-        CommentLines.initComment // next parsed should be comment
+        CommentLines.firstComment // next parsed should be comment
       ).parseOnly(commentedRecords)
 
     assert(result.option.get.equals(" this is comment1"))

@@ -10,6 +10,7 @@ lazy val root = (project in file(".")).settings(
     publishMavenStyle := true
   )),
   name := "ristex",
+  sonatypeProfileName := "io.geekabyte",
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % "3.0.4" % Test,
     "org.tpolecat" %% "atto-core"    % "0.6.4",

@@ -6,18 +6,18 @@ import Util.lb
 
 object CommentLines {
 
-  val initComment: Parser[String] = {
+  val firstComment: Parser[String] = {
     (many(notChar('#')) ~ char('#').map(_.toString)) ~> {
-      many(letterOrDigit | spaceChar).map(_.mkString) <~ manyN(0, lb)
+      many(letterOrDigit | spaceChar).map(_.mkString) <~ lb
     }
   }
 
   val comment = {
-    char('#') ~> many(letterOrDigit | spaceChar).map(_.mkString) <~ manyN(0, lb)
+    char('#') ~> many(letterOrDigit | spaceChar).map(_.mkString) <~ lb
   }
 
   val all: Parser[List[String]] = {
-    val aComment: Parser[String] = many(notChar('#')) ~> initComment
+    val aComment: Parser[String] = many(notChar('#')) ~> firstComment
     many(aComment)
   }
 

@@ -9,8 +9,8 @@ import Util.{lb, pipe}
 
 object RecordLines {
 
-  private val parseUpUntilRecords: Parser[(List[(String, String, Int, String)], Char)] =
-    SummaryLine.initAll ~ Util.lb
+  private val parseUpUntilRecords: Parser[List[(String, String, Int, String)]] =
+    SummaryLine.initParseAll
 
   private def regParser(statusParser: Parser[String]): Parser[String] = registryParser <~ {
     pipe ~ countryCodeParse ~
@@ -128,89 +128,90 @@ object RecordLines {
     */
   object Standard {
 
-    val initAll: Parser[List[(String, String, String, String, Long, String, String)]] = {
-      val parser = (registryParser <~ pipe,
+    private val lineParser: Parser[(String, String, String, String, Long, String, String)] =
+      (registryParser <~ pipe,
         countryCodeParse <~ pipe,
-        ipTypeAndStartValueParser <~ pipe,
-        valueParser <~ pipe,
+        ipTypeAndStartValueParser <~ pipe, valueParser <~ pipe,
         recordDate <~ pipe,
         standardStatusParser)
-        .mapN((reg, cc, iptypeandval, value, date, status) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status))
+      .mapN((reg, cc, iptypeandval, value, date, status) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status))
 
-      val skippingComments = parser <~ many(lb ~ CommentLines.comment)
-
-      parseUpUntilRecords ~> sepBy(skippingComments, lb)
+    val initParseAll: Parser[List[(String, String, String, String, Long, String, String)]] = {
+      val skippingComments = lineParser <~ (skipMany(lb.map(_.toString)) ~ skipMany(CommentLines.comment))
+      parseUpUntilRecords ~> many(skippingComments)
     }
 
-    val initRegistry: Parser[String] = {
+    val initParseFirst: Parser[(String, String, String, String, Long, String, String)] = {
+      parseUpUntilRecords ~> lineParser <~ lb
+    }
+
+    val firstRegistry: Parser[String] = {
       parseUpUntilRecords ~>  {
         nextRegistry
       }
     }
 
     val nextRegistry = {
-      regParser(standardStatusParser)
+      regParser(standardStatusParser) <~ lb
     }
 
-    val initCountryCode: Parser[String] = {
+    val firstCountryCode: Parser[String] = {
       parseUpUntilRecords ~> {
         nextCountryCode
       }
     }
 
     val nextCountryCode: Parser[String] = {
-      ccParser(standardStatusParser)
+      ccParser(standardStatusParser) <~ lb
     }
 
-    val initType: Parser[String] = {
+    val firstIPType: Parser[String] = {
       parseUpUntilRecords ~> {
-        nextType
+        nextIPType
       }
     }
 
-    val nextType = {
-      typeParser(standardStatusParser)
+    val nextIPType = {
+      typeParser(standardStatusParser) <~ lb
     }
 
-    val initStart: Parser[String] = {
+    val firstStartAddress: Parser[String] = {
       parseUpUntilRecords ~> {
-        nextStart
+        nextStartAddress
       }
     }
 
-    val nextStart: Parser[String] = {
-      startParser(standardStatusParser)
+    val nextStartAddress: Parser[String] = {
+      startParser(standardStatusParser) <~ lb
     }
 
 
-    val initValue: Parser[Long] = {
+    val firstValue: Parser[Long] = {
       parseUpUntilRecords ~> {
         nextValue
       }
     }
 
     val nextValue: Parser[Long] = {
-      startValueParser(standardStatusParser)
+      startValueParser(standardStatusParser) <~ lb
     }
 
-    val initDate: Parser[String] = {
+    val firstDate: Parser[String] = {
       parseUpUntilRecords ~> {
         nextDate
       }
     }
 
     val nextDate: Parser[String] = {
-      dateParser(standardStatusParser)
+      dateParser(standardStatusParser) <~ lb
     }
 
-    val initStatus: Parser[String] = {
-      parseUpUntilRecords ~> {
-        nextStatus
-      }
+    val firstStatus: Parser[String] = {
+      parseUpUntilRecords ~> nextStatus
     }
 
     val nextStatus: Parser[String] = {
-      statusParser(standardStatusParser)
+      statusParser(standardStatusParser) <~ lb
     }
 
   }
@@ -263,93 +264,94 @@ object RecordLines {
     */
   object Extended {
 
-    val initAll: Parser[List[(String, String, String, String, Long, String, String, String)]] = {
-      val parser = (registryParser <~ pipe,
-        countryCodeParse <~ pipe,
-        ipTypeAndStartValueParser <~ pipe,
-        valueParser <~ pipe,
-        recordDate <~ pipe,
-        extendedStatusParser  <~ pipe,
-        opaqueIdParser <~ manyN(0, lb))
-        .mapN((reg, cc, iptypeandval, value, date, status, opaqueId) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status, opaqueId))
+    private val lineParser: Parser[(String, String, String, String, Long, String, String, String)] = (registryParser <~ pipe,
+      countryCodeParse <~ pipe,
+      ipTypeAndStartValueParser <~ pipe,
+      valueParser <~ pipe,
+      recordDate <~ pipe,
+      extendedStatusParser  <~ pipe,
+      opaqueIdParser <~ manyN(0, lb))
+      .mapN((reg, cc, iptypeandval, value, date, status, opaqueId) => (reg, cc, iptypeandval._1, iptypeandval._2, value, date, status, opaqueId))
 
-      val skippingComments = parser <~ many(lb ~ CommentLines.comment)
-
+    val initParseAll: Parser[List[(String, String, String, String, Long, String, String, String)]] = {
+      val skippingComments = lineParser <~ many(lb ~ CommentLines.comment)
       parseUpUntilRecords ~> sepBy(skippingComments, lb)
     }
 
-    val initRegistry: Parser[String] = {
-      parseUpUntilRecords ~>  {
-        nextRegistry
-      }
+    val initParseFirst = {
+      parseUpUntilRecords ~> lineParser <~ lb
+    }
+
+    val firstRegistry: Parser[String] = {
+      parseUpUntilRecords ~> nextRegistry
     }
 
     val nextRegistry = {
-      regParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+      regParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initCountryCode: Parser[String] = {
+    val firstCountryCode: Parser[String] = {
       parseUpUntilRecords ~> {
         nextCountryCode
       }
     }
 
     val nextCountryCode: Parser[String] = {
-      ccParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+      ccParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initType: Parser[String] = {
+    val firstIPType: Parser[String] = {
       parseUpUntilRecords ~> {
-        nextType
+        nextIPType
       }
     }
 
-    val nextType = {
-      typeParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    val nextIPType = {
+      typeParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initStart: Parser[String] = {
+    val firstStartAddress: Parser[String] = {
       parseUpUntilRecords ~> {
-        nextStart
+        nextStartAddress
       }
     }
 
-    val nextStart: Parser[String] = {
-      startParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+    val nextStartAddress: Parser[String] = {
+      startParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
 
-    val initValue: Parser[Long] = {
+    val firstValue: Parser[Long] = {
       parseUpUntilRecords ~> {
         nextValue
       }
     }
 
     val nextValue: Parser[Long] = {
-      startValueParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+      startValueParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initDate: Parser[String] = {
+    val firstDate: Parser[String] = {
       parseUpUntilRecords ~> {
         nextDate
       }
     }
 
     val nextDate: Parser[String] = {
-      dateParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+      dateParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initStatus: Parser[String] = {
+    val firstStatus: Parser[String] = {
       parseUpUntilRecords ~> {
         nextStatus
       }
     }
 
     val nextStatus: Parser[String] = {
-      statusParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser)
+      statusParser(extendedStatusParser) <~ (pipe ~ opaqueIdParser ~ lb)
     }
 
-    val initOpaqueId: Parser[String] = {
+    val firstOpaqueId: Parser[String] = {
       parseUpUntilRecords ~> {
         nextOpaqueId
       }

@@ -5,6 +5,7 @@ import atto.{ParseResult, Parser}
 import io.geekabyte.ristex.parsers.HeaderLines.SummaryLine
 import io.geekabyte.ristex.parsers.{RecordLines, Util}
 import org.scalatest.{FunSpec, OptionValues}
+import shapeless.PolyDefns.~>
 
 import scala.io.Source
 
@@ -29,7 +30,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initRegistry
+            .firstRegistry
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "ripencc")
@@ -39,14 +40,14 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initRegistryParser: Parser[String] =
           RecordLines
             .Standard
-            .initRegistry
+            .firstRegistry
 
         val nextRegistryParser: Parser[String] =
           RecordLines
             .Standard
             .nextRegistry
 
-        assert((initRegistryParser ~ Util.lb ~> nextRegistryParser).parseOnly(standardRecords).option.value == "ripencc")
+        assert((initRegistryParser ~> nextRegistryParser).parseOnly(standardRecords).option.value == "ripencc")
       }
 
       it("should init parse country code") {
@@ -54,7 +55,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initCountryCode
+            .firstCountryCode
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "FR")
@@ -65,9 +66,9 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initCountryCode
+            .firstCountryCode
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.lb ~> RecordLines.Standard.nextCountryCode)
+        val parseResult: ParseResult[String] = (initParse ~> RecordLines.Standard.nextCountryCode)
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "EU")
@@ -78,11 +79,10 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initCountryCode
+            .firstCountryCode
 
         val parseResult: ParseResult[String] = (
-          initParse ~ Util.lb ~
-          RecordLines.Standard.nextCountryCode ~ Util.lb ~>
+          initParse ~ RecordLines.Standard.nextCountryCode ~>
             RecordLines.Standard.nextCountryCode
           ).parseOnly(standardRecords)
 
@@ -93,7 +93,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initType
+            .firstIPType
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "ipv4")
@@ -103,9 +103,9 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initType
+            .firstIPType
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.lb ~> RecordLines.Standard.nextType)
+        val parseResult: ParseResult[String] = (initParse ~> RecordLines.Standard.nextIPType)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "ipv6")
@@ -115,7 +115,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initStart
+            .firstStartAddress
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "2.0.0.0")
@@ -125,9 +125,9 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initStart
+            .firstStartAddress
 
-        val parseResult: ParseResult[String] =  (initParse ~ Util.lb ~> RecordLines.Standard.nextStart)
+        val parseResult: ParseResult[String] =  (initParse ~> RecordLines.Standard.nextStartAddress)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "2001:600::")
@@ -137,10 +137,10 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initStart
+            .firstStartAddress
 
         val parseResult: ParseResult[String] =
-          (initParse ~ Util.lb ~ RecordLines.Standard.nextStart ~ Util.lb ~> RecordLines.Standard.nextStart)
+          (initParse ~ RecordLines.Standard.nextStartAddress ~> RecordLines.Standard.nextStartAddress)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "210331")
@@ -150,7 +150,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[Long] =
           RecordLines
             .Standard
-            .initValue
+            .firstValue
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == 1048576L)
@@ -160,10 +160,10 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[Long] =
           RecordLines
             .Standard
-            .initValue
+            .firstValue
 
         val parseResult: ParseResult[Long] =
-          (initParse ~ Util.lb ~> RecordLines.Standard.nextValue)
+          (initParse ~> RecordLines.Standard.nextValue)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == 32L)
@@ -173,7 +173,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initDate
+            .firstDate
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "20100712")
@@ -183,9 +183,9 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initDate
+            .firstDate
 
-        val parseResult: ParseResult[String] = (initParse ~ Util.lb ~> RecordLines.Standard.nextDate)
+        val parseResult: ParseResult[String] = (initParse ~> RecordLines.Standard.nextDate)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "19990826")
@@ -195,20 +195,19 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val parseResult: ParseResult[String] =
           RecordLines
             .Standard
-            .initStatus
+            .firstStatus
             .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "allocated")
       }
 
-      it("should parse status after init") {
+      it("should parse status after first status") {
         val initParse: Parser[String] =
           RecordLines
             .Standard
-            .initStatus
+            .firstStatus
 
-
-        val parseResult: ParseResult[String] =  (initParse ~ Util.lb ~> RecordLines.Standard.nextStatus)
+        val parseResult: ParseResult[String] =  (initParse ~> RecordLines.Standard.nextStatus)
           .parseOnly(standardRecords)
 
         assert(parseResult.option.value == "allocated")
@@ -218,7 +217,7 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
         val initParse: Parser[List[(String, String, String, String, Long, String, String)]] =
           RecordLines
             .Standard
-            .initAll
+            .initParseAll
 
         val parseResult: ParseResult[List[(String, String, String, String, Long, String, String)]] =  initParse
           .parseOnly(standardAllRecords)
@@ -229,6 +228,20 @@ class StandardRecordLinesTest extends FunSpec with OptionValues {
             ("ripencc","EU","ipv6","2001:600::",32l,"19990826", "allocated"),
             ("ripencc","GB","asn","210331",1l,"20180821","assigned")
           )
+        }
+      }
+
+      it("should init parse first line") {
+        val initParse: Parser[(String, String, String, String, Long, String, String)] =
+          RecordLines
+            .Standard
+            .initParseFirst
+
+        val parseResult: ParseResult[(String, String, String, String, Long, String, String)] =  initParse
+          .parseOnly(standardAllRecords)
+
+        assert {
+          parseResult.option.value == ("ripencc","FR","ipv4","2.0.0.0",1048576l,"20100712","allocated")
         }
       }
     }
