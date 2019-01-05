@@ -34,7 +34,7 @@ Ristex exposes three kinds of parsing functionality:
 
 #### 1. Line Parsers: Parses a value per line
 
-These allows parsing one single value from a line. After parsing a value, the parsing moves to the next line. These 
+These allow parsing one single value from a line. After parsing a value, the parsing moves to the next line. These 
 parsers are suffixed with `lines`. They include `CommentLines`, `HeaderLines` and `RecordLines`. and they are 
 categorised based on the sections found in the RIR exchange statistics files which is described below.
 
@@ -50,7 +50,7 @@ file being viewed is an extended file format or not. More information about the 
 
 The above structure of the RIR exchange statistic files is reflected in Ristex:
 
-| RIR exchange statistic     | Ristex                   |
+| RIR exchange statistic File     | Ristex                   |
 | -------------------------  | ------------------------ |
 | File Header/Version line   | HeaderLines.VersionLine  |
 | File Header/Summary line   | HeaderLines.SummaryLine  |
@@ -92,7 +92,7 @@ val input =
 """.stripMargin
 ```
 
-Also the examples assumes the following imports has already being made
+Also the examples assume the following imports has already being made:
 
 ```
 scala> import io.geekabyte.ristex.parsers._
@@ -145,7 +145,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
  
 #### Header section parsing (via HeaderLines.VersionLine):
 
-Initiate the parsing by parsing the version line
+Initiate the parsing by parsing the version line:
 
 ```
 scala> HeaderLines.VersionLine.initParse.parseOnly(input)
@@ -163,7 +163,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
       ,(2.0,ripencc,1544569199,123397,19830705,20181211,+0100))
 ```
 
-Initiate the parsing by parsing the version in the version line
+Initiate the parsing by parsing the version in the version line:
 
 ```
 scala> HeaderLines.VersionLine.initVersion.parseOnly(input)
@@ -182,7 +182,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
 ```
 
 
-Initiate the parsing by parsing the UTC Offset in the version line
+Initiate the parsing by parsing the UTC Offset in the version line:
 
 ```
 scala> HeaderLines.VersionLine.initUTCoffset.parseOnly(input)
@@ -202,7 +202,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
 
 #### Header section parsing (via HeaderLines.SummaryLine):
 
-Initiate the parsing by parsing all the summary lines
+Initiate the parsing by parsing all the summary lines:
 
 ```
 scala> HeaderLines.SummaryLine.initParseAll.parseOnly(input)
@@ -215,7 +215,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
       ,List((ripencc,ipv4,71111,summary), (ripencc,asn,33984,summary), (ripencc,ipv6,18302,summary)))
 ```
 
-Initiate the parsing by parsing the first summary line
+Initiate the parsing by parsing the first summary line:
 
 ```
 scala> HeaderLines.SummaryLine.initParseFirst.parseOnly(input)
@@ -232,7 +232,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
 ``` 
 
 Initiate the parsing by parsing the first summary line 
-and then parse the second line
+and then parse the second line:
 
 ```
 scala> (HeaderLines.SummaryLine.initParseFirst ~> HeaderLines.SummaryLine.nextLine).parseOnly(input)
@@ -246,7 +246,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
 ```
 
 Initiate the parsing by parsing the first summary line 
-and then parse the resource type from second line
+and then parse the resource type from second line:
 
 ```
 scala> (HeaderLines.SummaryLine.initParseFirst ~> HeaderLines.SummaryLine.nextType).parseOnly(input)
@@ -262,7 +262,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
       ,asn)
 ```
 
-Initiate the parsing by parsing the first resource type
+Initiate the parsing by parsing the first resource type:
 
 ```
 scala> (HeaderLines.SummaryLine.firstIPType).parseOnly(input)
@@ -285,7 +285,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
 > Note that `RecordLines.Extended.*` behaves exactly like `RecordLines.Standard.*` except that extended version of 
   the RIR exchange statistic files has `RecordLines.Extended.firstOpaqueId` and `RecordLines.Extended.nextOpaqueId`
 
-Initiate the parse by parsing all records
+Initiate the parse by parsing all records:
 
 ```
 scala> (RecordLines.Standard.initParseAll).parseOnly(input)
@@ -298,7 +298,7 @@ res1: atto.ParseResult[List[(String, String, String, String, Long, String, Strin
 )
 ``` 
 
-Initiate the parse by parsing the first record line
+Initiate the parse by parsing the first record line:
 ```
 scala> (RecordLines.Standard.initParseFirst).parseOnly(input)
 
@@ -307,7 +307,7 @@ Done(ripencc|EU|ipv6|2001:600::|32|19990826|allocated
 ripencc|GB|asn|210331|1|20180821|assigned,(ripencc,FR,ipv4,2.0.0.0,1048576,20100712,allocated))
 ```
 
-Initiate the parse by parsing the first country code
+Initiate the parse by parsing the first country code:
 
 ```
 scala> (RecordLines.Standard.firstCountryCode).parseOnly(input)
@@ -318,7 +318,7 @@ ripencc|GB|asn|210331|1|20180821|assigned
       ,FR)
 ```
 
-Initiate the parse by parsing the first country code, then parse the second country code
+Initiate the parse by parsing the first country code, then parse the second country code:
 
 ```
 scala> (RecordLines.Standard.firstCountryCode ~> RecordLines.Standard.nextCountryCode).parseOnly(input)
