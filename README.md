@@ -1,6 +1,6 @@
 ## RISTEX
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.geekabyte.ristex/ristex_2.12)
 
 
 Ristex is a parser combinator library for parsing the **RI**R **St**atistics **Ex**change files. 
